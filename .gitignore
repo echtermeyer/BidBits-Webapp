@@ -1,6 +1,6 @@
 .venv_db/
 example_codes/
-secrets.json
+# secrets.json
 
 
 # Byte-compiled / optimized / DLL files
