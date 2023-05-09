@@ -12,6 +12,10 @@ Start the Docker containers and expose an experimental database:
 
 - `docker-compose up -d`
 
+Start the application using:
+
+- `python .\src\frontend\main.py`
+
 ### TODO:
 
 - Create database using python (today)
