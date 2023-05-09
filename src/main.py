@@ -1,11 +1,20 @@
+import json
 import psycopg2
 
+from pathlib import Path
+
+
+path_secrets = Path("src/secrets.json")
+with path_secrets.open() as f:
+    secrets = json.load(f)
+
+
 conn = psycopg2.connect(
-    dbname="bidbits",
-    user="docker",
-    password="docker",
-    host="0.0.0.0",
-    port="8080"
+    dbname=secrets["POSTGRES"]["DBNAME"],
+    user=secrets["POSTGRES"]["USER"],
+    password=secrets["POSTGRES"]["PASSWORD"],
+    host=secrets["POSTGRES"]["HOST"],
+    port=secrets["POSTGRES"]["PORT"]
 )
 
 cur = conn.cursor()
