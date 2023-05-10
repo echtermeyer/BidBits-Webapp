@@ -1,14 +1,15 @@
 import dash
-import dash_core_components as dcc
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output, State
+import dash_html_components as html
+from dash.dependencies import Input, Output, State, MATCH
 from dash.exceptions import PreventUpdate
 
-from layouts.home import home_layout
-from layouts.serve import serve_layout
-from layouts.dashboard import dashboard_layout
+from frontend.layouts.home import home_layout
+from frontend.layouts.serve import serve_layout
+from frontend.layouts.dashboard import dashboard_layout
+from frontend.checks import check_valid_login, check_valid_registration
 
-from checks import check_valid_login, check_valid_registration
+from backend.dashboard import generate_add_bids, generate_wishlist
 
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, "https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"], suppress_callback_exceptions=True)
@@ -81,6 +82,7 @@ def navigate_to_dashboard(login_clicks, register_clicks, close_clicks, login_use
         raise PreventUpdate
     
 
+
 @app.callback(
     [Output("all-bids", "style"),
      Output("watchlist", "style"),
@@ -103,11 +105,29 @@ def switch_tab(n1, n2, clicks1, clicks2):
     active_style = {**base_style, "text-decoration": "underline"}
 
     if button_id == "all-bids" and (clicks1 is None or clicks1 >= clicks2):
-        return active_style, base_style, "All bids are displayed here"
+        print("Generate all bids")
+        return active_style, base_style, generate_add_bids()
     elif button_id == "watchlist" and (clicks2 is None or clicks2 > clicks1):
-        return base_style, active_style, "Your watchlist"
+        print("Generate wishlist")
+        return base_style, active_style, generate_wishlist()
     else:
         return dash.no_update, dash.no_update, dash.no_update
+
+
+
+@app.callback(
+    Output({'type': 'wishlist-button', 'index': MATCH}, 'children'),
+    Input({'type': 'wishlist-button', 'index': MATCH}, 'n_clicks'),
+    State({'type': 'wishlist-button', 'index': MATCH}, 'children')
+)
+def update_wishlist_button(n, current_state):
+    if n == 0:
+        return current_state
+    elif current_state == "Add to Wishlist":
+        return "Remove from Wishlist"
+    else:
+        return "Add to Wishlist"
+
 
 
 if __name__ == "__main__":
