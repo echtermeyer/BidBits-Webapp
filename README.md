@@ -14,7 +14,7 @@ Start the Docker containers and expose an experimental database:
 
 Start the application using:
 
-- `python .\src\frontend\main.py`
+- `python .\src\main.py`
 
 ### TODO:
 
