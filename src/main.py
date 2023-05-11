@@ -10,6 +10,7 @@ from frontend.layouts.dashboard import dashboard_layout
 from frontend.checks import check_valid_login, check_valid_registration
 
 from backend.dashboard import generate_add_bids, generate_wishlist
+from backend.dashboard import add_bid_to_wishlist, remove_bid_from_whishlist
 
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, "https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"], suppress_callback_exceptions=True)
@@ -86,7 +87,10 @@ def navigate_to_dashboard(login_clicks, register_clicks, close_clicks, login_use
 @app.callback(
     [Output("all-bids", "style"),
      Output("watchlist", "style"),
-     Output("dashboard-content", "children")],
+     Output("all-bids-content", "children"),  
+     Output("watchlist-content", "children"),
+     Output("all-bids-content", "style"),
+     Output("watchlist-content", "style")],
     [Input("all-bids", "n_clicks_timestamp"),
      Input("watchlist", "n_clicks_timestamp")],
     [State("all-bids", "n_clicks"),
@@ -97,21 +101,21 @@ def switch_tab(n1, n2, clicks1, clicks2):
     ctx = dash.callback_context
 
     if not ctx.triggered:
-        return dash.no_update, dash.no_update, dash.no_update
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
     else:
         button_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
     base_style = {"border": "none", "background": "none", "outline": "none", "box-shadow": "none", "color": "black"}
     active_style = {**base_style, "text-decoration": "underline"}
+    hidden_style = {"display": "none"}
+    shown_style = {}
 
     if button_id == "all-bids" and (clicks1 is None or clicks1 >= clicks2):
-        print("Generate all bids")
-        return active_style, base_style, generate_add_bids()
+        return active_style, base_style, generate_add_bids(), [], shown_style, hidden_style
     elif button_id == "watchlist" and (clicks2 is None or clicks2 > clicks1):
-        print("Generate wishlist")
-        return base_style, active_style, generate_wishlist()
+        return base_style, active_style, [], generate_wishlist(), hidden_style, shown_style
     else:
-        return dash.no_update, dash.no_update, dash.no_update
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
 
 
@@ -124,8 +128,10 @@ def update_wishlist_button(n, current_state):
     if n == 0:
         return current_state
     elif current_state == "Add to Wishlist":
+        add_bid_to_wishlist()
         return "Remove from Wishlist"
     else:
+        remove_bid_from_whishlist()
         return "Add to Wishlist"
 
 

@@ -4,7 +4,7 @@ import dash_html_components as html
 
 def generate_add_bids():
     items = []
-    for i in range(1, 4):
+    for i in range(1, 5):
         item = dbc.Card([
             dbc.Row([
                 dbc.Col(dbc.CardImg(src=f"/assets/item{i}.jpg", top=True), width=6),
@@ -38,3 +38,11 @@ def generate_wishlist():
         ], style={"width": "50%", "margin": "1rem auto"})
         items.append(item)
     return items
+
+
+def add_bid_to_wishlist():
+    pass
+
+
+def remove_bid_from_whishlist():
+    pass
