@@ -11,8 +11,10 @@ def dashboard_layout():
         html.H1("Dashboard", style={"font-family": "Roboto", "text-align": "center", "font-size": "3rem", "font-weight": "bold", "margin-top": "3rem", "margin-bottom": "1rem", "color": "black"}),
         
         html.Div([
-            dbc.Button("All Bids", id="all-bids", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "box-shadow": "none", "color": "black", "text-decoration": "underline"}),
+            dbc.Button("Create Item", id="create-item", href="/create", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "box-shadow": "none", "color": "black"}),
+            dbc.Button("All Bids", id="all-bids", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "box-shadow": "none", "color": "black"}),
             dbc.Button("Watchlist", id="watchlist", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "box-shadow": "none", "color": "black"}),
+            dbc.Button("User", id="user", href="/user", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "box-shadow": "none", "color": "black"}),
         ], style={"text-align": "center", "margin-top": "3rem"}),
 
         html.Div(style={"height": "70vh", "overflow": "auto", "margin-top": "2rem"},
@@ -20,9 +22,4 @@ def dashboard_layout():
                      html.Div(id="all-bids-content", children=generate_add_bids()),
                      html.Div(id="watchlist-content", children=generate_wishlist(), style={'display': 'none'})
                  ]),
-
-        dbc.NavLink(
-            dbc.NavItem(dbc.NavLink("User", active=True, href="#")),
-            style={"position": "absolute", "right": "10px", "top": "10px", "color": "black", "margin": "1rem"}
-        )
     ])
