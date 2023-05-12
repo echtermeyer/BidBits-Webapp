@@ -24,8 +24,8 @@ def user_layout():
 
         html.Div(style={"height": "70vh", "overflow": "auto", "margin-top": "2rem"},
                  children=[
-                    html.Div(id="personal-data-content", children=personal_data_layout(), style={'display': 'none'}),
-                    html.Div(id="won-auctions-content", children=won_auctions_layout()),
+                    html.Div(id="personal-data-content", children=personal_data_layout()),
+                    html.Div(id="won-auctions-content", children=won_auctions_layout(), style={'display': 'none'}),
                     html.Div(id="feedback-content", children=feedback_layout(), style={'display': 'none'}),
                     html.Div(id="payments-content", children=payments_layout(), style={'display': 'none'})
                  ]),

@@ -11,9 +11,6 @@ from frontend.layouts.user import user_layout
 from frontend.layouts.create import create_bid_layout
 
 from frontend.checks import check_valid_login, check_valid_registration
-
-from backend.user import login_user, register_user
-from backend.dashboard import generate_add_bids, generate_wishlist
 from backend.dashboard import add_bid_to_wishlist, remove_bid_from_whishlist
 
 
