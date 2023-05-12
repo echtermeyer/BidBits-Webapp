@@ -136,18 +136,36 @@ def switch_tab(n1, n2, n3, n4, clicks1, clicks2, clicks3, clicks4):
 
 @app.callback(
     Output({'type': 'wishlist-button', 'index': MATCH}, 'children'),
-    Input({'type': 'wishlist-button', 'index': MATCH}, 'n_clicks'),
-    State({'type': 'wishlist-button', 'index': MATCH}, 'children')
+    [Input({'type': 'wishlist-button', 'index': MATCH}, 'n_clicks')],
+    [State({'type': 'wishlist-button', 'index': MATCH}, 'children')],
+    prevent_initial_call=True,
 )
-def update_wishlist_button(n, current_state):
-    if n == 0:
+def update_wishlist_button(n_clicks, current_state):
+    print(f"Button clicked. n_clicks = {n_clicks}, current_state = {current_state}")
+    if n_clicks == 0:
         return current_state
-    elif current_state == "Add to Wishlist":
+    elif current_state == "Add to Watchlist":
+        print("Adding bid to wishlist")
         add_bid_to_wishlist()
-        return "Remove from Wishlist"
+        return "Remove from Watchlist"
     else:
+        print("Removing bid from wishlist")
         remove_bid_from_whishlist()
-        return "Add to Wishlist"
+        return "Add to Watchlist"
+    
+
+@app.callback(
+    [Output({'type': 'bid-button', 'index': MATCH}, "disabled"),
+     Output({'type': 'bidder-text', 'index': MATCH}, "hidden")],
+    [Input({'type': 'bid-button', 'index': MATCH}, "n_clicks")],
+    [State({'type': 'title-text', 'index': MATCH}, 'children')],
+    prevent_initial_call=True,
+)
+def on_confirm_bid(n_clicks, title):
+    if n_clicks is None:
+        raise dash.exceptions.PreventUpdate()
+    print(title) 
+    return True, False 
 
 
 
