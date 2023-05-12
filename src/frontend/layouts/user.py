@@ -2,7 +2,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 
-from backend.dashboard import generate_add_bids, generate_wishlist
+from backend.user import retrieve_user_information, retrieve_feedback, retrieve_payment_information, retrieve_won_auctions
 
 
 def user_layout():
@@ -24,15 +24,17 @@ def user_layout():
 
         html.Div(style={"height": "70vh", "overflow": "auto", "margin-top": "2rem"},
                  children=[
-                    html.Div(id="personal-data-content", children=personal_data_layout()),
-                    html.Div(id="won-auctions-content", style={'display': 'none'}),
-                    html.Div(id="feedback-content", style={'display': 'none'}),
-                    html.Div(id="payments-content", style={'display': 'none'})
+                    html.Div(id="personal-data-content", children=personal_data_layout(), style={'display': 'none'}),
+                    html.Div(id="won-auctions-content", children=won_auctions_layout()),
+                    html.Div(id="feedback-content", children=feedback_layout(), style={'display': 'none'}),
+                    html.Div(id="payments-content", children=payments_layout(), style={'display': 'none'})
                  ]),
     ])
 
 
 def personal_data_layout():
+    user = retrieve_user_information()
+    
     return html.Div(
         style={"margin-left": "10%", "margin-right": "10%"},
         children=[
@@ -47,7 +49,7 @@ def personal_data_layout():
                             dbc.Input(
                                 id="update-username",
                                 type="text",
-                                placeholder="TerminatorTobi",
+                                placeholder=user["username"],
                                 disabled=True
                             )
                         ],
@@ -60,7 +62,7 @@ def personal_data_layout():
                             dbc.Input(
                                 id="update-email",
                                 type="email",
-                                placeholder="elaspix-sucks@hotmail.de"
+                                placeholder=user["email"]
                             )
                         ],
                         className="mb-3"
@@ -72,7 +74,7 @@ def personal_data_layout():
                             dbc.Input(
                                 id="update-firstname",
                                 type="text",
-                                placeholder="Tobias"
+                                placeholder=user["firstname"]
                             )
                         ],
                         className="mb-3"
@@ -84,7 +86,7 @@ def personal_data_layout():
                             dbc.Input(
                                 id="update-lastname",
                                 type="text",
-                                placeholder="Günther"
+                                placeholder=user["lastname"]
                             )
                         ],
                         className="mb-3"
@@ -96,7 +98,7 @@ def personal_data_layout():
                             dbc.Input(
                                 id="update-address",
                                 type="text",
-                                placeholder="Meerfeldstraße 63, 68163 Mannheim"
+                                placeholder=user["address"]
                             )
                         ],
                         className="mb-3"
@@ -108,7 +110,7 @@ def personal_data_layout():
                             dbc.Input(
                                 id="update-phone",
                                 type="text",
-                                placeholder="015168414878"
+                                placeholder=user["phone"]
                             )
                         ],
                         className="mb-3"
@@ -123,4 +125,76 @@ def personal_data_layout():
                 ]
             )
         ]
+    )
+
+def won_auctions_layout():
+    auctions = retrieve_won_auctions()
+    elements = [html.H2("Finished Auctions", style={"font-family": "Roboto", "text-align": "center"}),]
+
+    for i, auction in enumerate(auctions["auctions"]):
+        item = dbc.Card([
+            dbc.Row([
+                dbc.Col(dbc.CardImg(src=f"/assets/{auction['image_path']}", top=True), width=6),
+                dbc.Col(dbc.CardBody([
+                    html.H4(auction['title'], className="card-title", id={'type': 'title-text', 'index': i}),
+                    html.H6(f"Buyer: {auction['buyer']}, Seller: {auction['seller']}", className="card-text"),
+                    html.P(f"Item Code: #{auction['item_id']}", className="card-text"),
+                    html.P(auction['description'], className="card-text"),
+                    html.H6(f"Date: {auction['date']}", className="card-text"),
+                    html.H6(f"Price: {auction['price']}", className="card-text"),
+                ], className="d-flex flex-column"), width=6)
+            ])
+        ], style={"width": "50%", "margin": "1rem auto"})
+        elements.append(item)
+
+    return html.Div(
+        style={"margin-left": "10%", "margin-right": "10%"},
+        children=elements
+    )
+
+
+def feedback_layout():
+    feedback = retrieve_feedback()
+    elements = [html.H2("Buyer Feedback", style={"font-family": "Roboto", "text-align": "center"}),]
+
+    for i, review in enumerate(feedback["reviews"]):
+        item = dbc.Card([
+            dbc.Row([
+                dbc.Col(dbc.CardBody([
+                    html.H4(f"Feedback from {review['sender']}", className="card-title", id={'type': 'title-text', 'index': i}),
+                    html.P(review['message'], className="card-text"),
+                    html.H6(f"Rating: {review['rating']}/5 stars", className="card-text"),
+                    html.H6(f"Date: {review['date']}", className="card-text"),
+                ], className="d-flex flex-column"), width=6)
+            ])
+        ], style={"width": "50%", "margin": "1rem auto"})
+        elements.append(item)
+
+    return html.Div(
+        style={"margin-left": "10%", "margin-right": "10%"},
+        children=elements
+    )
+
+
+def payments_layout():
+    payments = retrieve_payment_information()
+    elements = [html.H2("Payment History", style={"font-family": "Roboto", "text-align": "center"}),]
+
+    for i, payment in enumerate(payments["history"]):
+        item = dbc.Card([
+            dbc.Row([
+                dbc.Col(dbc.CardBody([
+                    html.H4(f"Payment for: {payment['title']}", className="card-title", id={'type': 'title-text', 'index': i}),
+                    html.P(f"Item Code: #{payment['item_id']}", className="card-text"),
+                    html.P(f"Payment Method: {payment['method']}", className="card-text"),
+                    html.P(f"Payment Date: {payment['date']}", className="card-text"),
+                    html.H6(f"Paid amount: {payment['amount']}", className="card-text"),
+                ], className="d-flex flex-column"), width=6)
+            ])
+        ], style={"width": "50%", "margin": "1rem auto"})
+        elements.append(item)
+
+    return html.Div(
+        style={"margin-left": "10%", "margin-right": "10%"},
+        children=elements
     )

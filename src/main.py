@@ -168,6 +168,35 @@ def on_confirm_bid(n_clicks, title):
     return True, False 
 
 
+@app.callback(
+    [
+        Output("personal-data-content", "style"),
+        Output("won-auctions-content", "style"),
+        Output("feedback-content", "style"),
+        Output("payments-content", "style")
+    ],
+    [
+        Input("personal-data", "n_clicks"),
+        Input("won-auctions", "n_clicks"),
+        Input("feedback", "n_clicks"),
+        Input("payments", "n_clicks")
+    ]
+)
+def update_content_visibility(personal_data_clicks, won_auctions_clicks, feedback_clicks, payments_clicks):
+    ctx = dash.callback_context
+    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if button_id == "personal-data":
+        return {"display": "block"}, {"display": "none"}, {"display": "none"}, {"display": "none"}
+    elif button_id == "won-auctions":
+        return {"display": "none"}, {"display": "block"}, {"display": "none"}, {"display": "none"}
+    elif button_id == "feedback":
+        return {"display": "none"}, {"display": "none"}, {"display": "block"}, {"display": "none"}
+    elif button_id == "payments":
+        return {"display": "none"}, {"display": "none"}, {"display": "none"}, {"display": "block"}
+    else:
+        return {"display": "block"}, {"display": "none"}, {"display": "none"}, {"display": "none"}
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
