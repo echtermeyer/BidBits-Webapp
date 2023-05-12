@@ -128,10 +128,9 @@ def personal_data_layout():
     )
 
 def won_auctions_layout():
-    auctions = retrieve_won_auctions()
     elements = [html.H2("Finished Auctions", style={"font-family": "Roboto", "text-align": "center"}),]
 
-    for i, auction in enumerate(auctions["auctions"]):
+    for i, auction in enumerate(retrieve_won_auctions()):
         item = dbc.Card([
             dbc.Row([
                 dbc.Col(dbc.CardImg(src=f"/assets/{auction['image_path']}", top=True), width=6),
@@ -154,10 +153,9 @@ def won_auctions_layout():
 
 
 def feedback_layout():
-    feedback = retrieve_feedback()
     elements = [html.H2("Buyer Feedback", style={"font-family": "Roboto", "text-align": "center"}),]
 
-    for i, review in enumerate(feedback["reviews"]):
+    for i, review in enumerate(retrieve_feedback()):
         item = dbc.Card([
             dbc.Row([
                 dbc.Col(dbc.CardBody([
@@ -177,10 +175,9 @@ def feedback_layout():
 
 
 def payments_layout():
-    payments = retrieve_payment_information()
     elements = [html.H2("Payment History", style={"font-family": "Roboto", "text-align": "center"}),]
 
-    for i, payment in enumerate(payments["history"]):
+    for i, payment in enumerate(retrieve_payment_information()):
         item = dbc.Card([
             dbc.Row([
                 dbc.Col(dbc.CardBody([
