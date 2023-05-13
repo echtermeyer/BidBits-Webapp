@@ -1,0 +1,5 @@
+- Weiß nicht, ob die Tabelle 'Image' Sinn ergibt. Glaube es bietet keinen Mehrwert die Infos auszulagern, statt sie einfach in die Tabelle 'Item' zu integrieren. Gelöscht
+
+- Watchlist ist jetzt eine weak entity die kein eigenes attribut hat. Müssen ihn mal fragen, ob das geht. Habe online keine vergleichbaren Fälle gefunden.
+
+- Problem: Man braucht den cursor um Datenbanken in Python zu erstellen. Aber: Für die Initialisierung des Cursors muss man sich mit einer Datenbank verbinden. Also: Muss die Datenbank im vorhinein manuell erstellt werden. Frage an Dozent: Gibt's hier nen Trick?
