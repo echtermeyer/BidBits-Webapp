@@ -121,7 +121,8 @@ def personal_data_layout():
                         id="update-submit",
                         color="primary",
                         style={"font-family": "Roboto", "width": "100%", "margin-top": "1rem"}
-                    )
+                    ),
+                    html.Div(id='update-message', style={"text-align": "center", "margin-top": "1rem"})
                 ]
             )
         ]

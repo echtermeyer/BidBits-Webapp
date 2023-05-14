@@ -38,6 +38,7 @@ def generate_items(items):
                 dbc.Col(dbc.CardImg(src=f"/assets/{item['image_path']}", top=True), width=6),
                 dbc.Col(dbc.CardBody([
                     html.H4(item["title"], className="card-title", id={'type': 'title-text', 'index': i}),
+                    html.H6(f"Item Code: #{item['item_id']}", className="card-text"),
                     html.P(item["description"], className="card-text"),
                     html.H6(f"Highest Bid: ${item['highest_bid']}", className="card-text"),
                     html.H6(f"Time left: {item['time_left']} days", className="card-text"),
@@ -52,6 +53,8 @@ def generate_items(items):
                     html.Div("You are the highest bidder", id={'type': 'bidder-text', 'index': i}, hidden=True, style={"color": "green", "margin-top": "1rem"}),
                     dbc.Button(watchlist_text, id={'type': 'wishlist-button', 'index': i}, n_clicks=0, color="secondary", style={"margin-top": "2rem"}),
                     html.Div(style={"flex-grow": "1"}),  # Spacer
+                    # Hidden Div to hold the item_id
+                    html.Div(item['item_id'], id={'type': 'item_id', 'index': i}, style={'display': 'none'})
                 ], className="d-flex flex-column"), width=6)
             ])
         ], style={"width": "50%", "margin": "1rem auto"})

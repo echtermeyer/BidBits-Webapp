@@ -5,7 +5,7 @@ import dash_html_components as html
 def retrieve_all_items():
     return  [
         {
-            "item_id": "1",
+            "item_id": "10",
             "title": "Item 1",
             "description": "Some detailed description",
             "highest_bid": "500",
@@ -14,7 +14,7 @@ def retrieve_all_items():
             "is_watchlist": False
         },
         {
-            "item_id": "2",
+            "item_id": "3",
             "title": "Item 2",
             "description": "Some detailed description",
             "highest_bid": "500",
@@ -23,7 +23,7 @@ def retrieve_all_items():
             "is_watchlist": True
         },
         {
-            "item_id": "3",
+            "item_id": "1",
             "title": "Item 3",
             "description": "Some detailed description",
             "highest_bid": "500",
@@ -32,7 +32,7 @@ def retrieve_all_items():
             "is_watchlist": False
         },
         {
-            "item_id": "4",
+            "item_id": "2",
             "title": "Item 4",
             "description": "Some detailed description",
             "highest_bid": "500",

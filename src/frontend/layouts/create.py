@@ -49,15 +49,22 @@ def create_bid_layout():
             dbc.Row([
                 dbc.Col([
                     dbc.Label("Item Image"),
-                    dbc.Input(type="file", id="item-image"),
+                    dcc.Upload(id="item-image", children=html.Div(['Drag and Drop or ', html.A('Select Files')]), style={
+                        'width': '100%',
+                        'height': '60px',
+                        'lineHeight': '60px',
+                        'borderWidth': '1px',
+                        'borderStyle': 'dashed',
+                        'borderRadius': '5px',
+                        'textAlign': 'center'
+                    })
                 ]),
-            ], style={'margin-bottom': '2rem'}),
+            ], style={'margin-bottom': '1rem'}),
             dbc.Row([
                 dbc.Col([
-                    dbc.Button("Start Auction", id="start-auction", color="primary"),
+                    dbc.Button("Start Auction", id="start-auction", color="primary", style={'width': '100%',}),
                 ])
-            ])
-        ], style={"max-width": "500px", "margin": "2rem auto", "padding": "2rem", "background": "white", "border-radius": "15px"}),
-        
-        dcc.Link('Go back to main page', href='/dashboard')
+            ]),
+            dbc.Container(id="alert-container", style={"width": "100%", "text-align": "center", "margin-top": "1rem"})
+        ], style={"max-width": "500px", "margin": "1rem auto", "padding": "2rem", "background": "white", "border-radius": "15px"}),
     ])
