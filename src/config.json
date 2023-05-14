@@ -1,9 +1,9 @@
 {
   "POSTGRES": {
-    "DBNAME": "bidbits",
+    "DBNAME": "bidbits_demo",
     "USER": "postgres",
     "PASSWORD": "hallo",
     "HOST": "localhost",
-    "PORT": "5432"
+    "PORT": "5399"
   }
 }

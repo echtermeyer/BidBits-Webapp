@@ -1,31 +1,76 @@
 import json
-import psycopg2
-from datetime import datetime, timedelta
 
 from pathlib import Path
+from datetime import datetime, timedelta
 
-# Datenbank 'bidbits' muss manuell angelegt werden bevor der dump durchgeführt werden kann.
+import psycopg2
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
+from sqlalchemy import text, create_engine
+
+
+path_file = Path(__file__)
+with open(path_file.parent.parent / "config.json") as f:
+    config = json.load(f)
+
 
 class Database:
     def __init__(self):
+        self.__create_database(
+            dbname=config["POSTGRES"]["DBNAME"],
+            user=config["POSTGRES"]["USER"],
+            password=config["POSTGRES"]["PASSWORD"],
+            host=config["POSTGRES"]["HOST"],
+            port=config["POSTGRES"]["PORT"]
+        )
         self.__conn = None
         self.__cur = None
         self.__current_user = None
 
+    def __create_database(self, dbname, user, password, host, port):
+        engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/')
+
+        with engine.connect() as connection:
+            connection.connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+            result = connection.execute(text(f"SELECT datname FROM pg_database WHERE datname = '{dbname}'")).fetchone()
+
+            if result:
+                print(f"Database {dbname} already exists!")
+            else:
+                connection.execute(text(f"CREATE DATABASE {dbname}"))
+
+                conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
+                self.__fill_database(path_file.parent / "ddl.sql", conn)
+                conn.close()
+
+                print(f"Database {dbname} created successfully!")
+
+        engine.dispose()
+
+    def __fill_database(self, file_path, conn):
+        cursor = conn.cursor()
+
+        with open(file_path, 'r') as file:
+            sql = file.read()
+
+        sql_commands = sql.split(';')
+        for command in sql_commands:
+            try:
+                if command.strip() != '':
+                    cursor.execute(command)
+                    print(f"SQL command executed successfully: {command}")
+                    conn.commit()
+            except Exception as e:
+                print(f"An error occurred while executing the SQL command: {e}")
+
     # ----- Utilities
     def __connect(self):
-        path_file = Path(__file__)
-
-        path_secrets = path_file.parent.parent / "secrets.json"
-        with path_secrets.open() as f:
-            secrets = json.load(f)
-
         self.__conn = psycopg2.connect(
-            dbname=secrets["POSTGRES"]["DBNAME"],
-            user=secrets["POSTGRES"]["USER"],
-            password=secrets["POSTGRES"]["PASSWORD"],
-            host=secrets["POSTGRES"]["HOST"],
-            port=secrets["POSTGRES"]["PORT"]
+            dbname=config["POSTGRES"]["DBNAME"],
+            user=config["POSTGRES"]["USER"],
+            password=config["POSTGRES"]["PASSWORD"],
+            host=config["POSTGRES"]["HOST"],
+            port=config["POSTGRES"]["PORT"]
         )
 
         self.__cur = self.__conn.cursor()
