@@ -3,4 +3,4 @@ def create_bid():
 
 
 def get_categories():
-    return ['Electronics', 'Books', 'Clothing', 'Sports', 'Toys']
+    return ['Animals - Mammals', 'Animals - Amphibians', 'Antiquities - Boring old stuff', 'Antiquities - Cool old stuff']

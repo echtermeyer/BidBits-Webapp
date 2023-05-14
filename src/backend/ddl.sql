@@ -55,8 +55,8 @@ CREATE TABLE Item (
 );
 
 INSERT INTO Item VALUES
-(1, 'A cat with large ears', 'This cat is a great listener. Buy it now!', 20, '1999-01-08 04:05:06', '1999-01-10 04:05:06', 'https://en.wikipedia.org/wiki/Cat#/media/File:Kittyply_edit1.jpg', 'Karen', 1),
-(2, 'The Amber Room', 'It is golden, it is good. Found it under my bed.', 1200420123, '2023-05-13 06:07:08', '2023-05-30 06:07:08', 'https://de.wikipedia.org/wiki/Bernsteinzimmer#/media/Datei:Andrey_Zeest_-_Amber_Room_2_(autochrome).jpg', 'Alfie', 4),
+(1, 'A cat with large ears', 'This cat is a great listener. Buy it now!', 20, '2023-05-14 12:11:08', '2023-06-02 11:11:01', 'https://en.wikipedia.org/wiki/Cat#/media/File:Kittyply_edit1.jpg', 'Karen', 1),
+(2, 'The Amber Room', 'Look what I found under my bed. It is golden, it is good.', 1200420123, '2023-05-13 06:07:08', '2023-05-30 06:07:08', 'https://de.wikipedia.org/wiki/Bernsteinzimmer#/media/Datei:Andrey_Zeest_-_Amber_Room_2_(autochrome).jpg', 'Alfie', 4),
 (3, 'A red bar stool', 'Good Chair, nice and comfy. Does not wobble.', 15, '2020-01-01 19:12:22', '2020-01-02 13:02:22', 'https://cdn.eichholtz.com/media/catalog/product/cache/62a0001ba384dd559aac2c6dd8434b29/1/1/114878_0_1_1.jpg', 'Karen', 3);
 
 
@@ -84,7 +84,8 @@ CREATE TABLE Watchlist (
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     item_id SERIAL REFERENCES Item(id) 
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT unique_watchlist_entry UNIQUE (user_username, item_id)
 );
 
 INSERT INTO Watchlist VALUES
@@ -98,17 +99,17 @@ CREATE TABLE Feedback (
     feedbackID SERIAL PRIMARY KEY,
     rating INTEGER NOT NULL CHECK (rating BETWEEN 0 AND 10),
     comment TEXT,
-    buyer VARCHAR(50) REFERENCES "user"(username) 
+    sender VARCHAR(50) REFERENCES "user"(username) 
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    seller VARCHAR(50) REFERENCES "user"(username) 
+    receiver VARCHAR(50) REFERENCES "user"(username) 
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
 INSERT INTO Feedback VALUES
-(1, 1, 'Karen sold me a wobbly chair, I am furious.', 'John', 'Karen'),
-(2, 10, 'The small gentleman bought my crooked bar stool. What a good lad.', 'Karen', 'John');
+(1, 1, 3, 'Karen sold me a wobbly chair, I am furious.', 'John', 'Karen'),
+(2, 10, 3, 'The small gentleman bought my crooked bar stool. What a good lad.', 'Karen', 'John');
 
 
 -- Create Payment table
