@@ -108,8 +108,8 @@ CREATE TABLE Feedback (
 );
 
 INSERT INTO Feedback VALUES
-(1, 1, 3, 'Karen sold me a wobbly chair, I am furious.', 'John', 'Karen'),
-(2, 10, 3, 'The small gentleman bought my crooked bar stool. What a good lad.', 'Karen', 'John');
+(1, 1, 'Karen sold me a wobbly chair, I am furious.', 'John', 'Karen'),
+(2, 10, 'The small gentleman bought my crooked bar stool. What a good lad.', 'Karen', 'John');
 
 
 -- Create Payment table
