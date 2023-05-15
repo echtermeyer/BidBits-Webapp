@@ -2,7 +2,7 @@
 
 ## Backend
 Einen Materialized View 'user_stats' mit buyerusername, average_feedback, total_money_spend, total_money_earned, favorite_category.
-Einen View 'active_items' für aktuelle Item Listings mit den Informationen die auf den Karten angezeigt werden.
+Einen View 'item_status' für aktuelle Item Listings mit den Informationen die auf den Karten angezeigt werden.
 Eine Stored Procedure process_payment, die immer dann getriggered wird wenn eine Auktion ausläuft und daraufhin einen Eintrag in der Tabelle payment macht.
 
 ## Fontend
@@ -16,3 +16,7 @@ Bilder über Internet-URLs anzeigen
 - Problem: Man braucht den cursor um Datenbanken in Python zu erstellen. Aber: Für die Initialisierung des Cursors muss man sich mit einer Datenbank verbinden. Also: Muss die Datenbank im vorhinein manuell erstellt werden. Frage an Dozent: Gibt's hier nen Trick?
 - Kann oder soll SQLAlchemy benutzt werden? Glaube es ist optional, macht die Arbeit aber anscheinent leichter - würde trotzdem drauf verzichten.
 
+
+
+# Notiz von David an David
+- Wenn's nach dem Pullen beim Ausführen des Scripts einen Error gibt, erstmal den Port in der config Datei auf 5432 ändern. Angleichung des Ports in pgAdmin hat nicht funktioniert.

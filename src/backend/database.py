@@ -33,9 +33,10 @@ class Database:
         with engine.connect() as connection:
             connection.connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
             result = connection.execute(text(f"SELECT datname FROM pg_database WHERE datname = '{dbname}'")).fetchone()
-
+            
             if result:
                 print(f"Database {dbname} already exists!")
+                print(f"Für Debugging: {result}")
             else:
                 connection.execute(text(f"CREATE DATABASE {dbname}"))
 
@@ -105,8 +106,8 @@ class Database:
             for entry in self.__cur.fetchall()
         ]
 
-    @__connection_manager
-    def database_dump(self):
+    # @__connection_manager
+    # def database_dump(self):
         # Check if tables already exist
         self.__cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
         table_names = self.__cur.fetchall()
@@ -195,24 +196,85 @@ class Database:
 
     # ---- Functions that return data for page rendering
     @__connection_manager
-    def show_user(self):
+    def get_active_items(self):
+        self.__cur.execute(
+            f"""
+                SELECT 
+                    item_status.*,
+	                CASE
+                        WHEN filtered_watchlist.user_username is NUll THEN 0
+                        ELSE 1
+                    END is_watchlist
+                FROM 
+                    items_status 
+                    LEFT JOIN (SELECT * FROM watchlist WHERE user_username = '{self.__current_user}') AS filtered_watchlist 
+                        ON items_status.item_id = filtered_watchlist.item_id 
+                WHERE time_left > 0;
+            """
+            )
+        return self.__fetch_data_from_cursor()
+
+    def get_watchlist_items(self):
+        active_items = self.get_active_items()
+        return [item for item in active_items if item["is_watchlist"]]
+    
+    @__connection_manager
+    def get_personal_data(self):
+        """For tab Personal Data under user profile"""
         self.__cur.execute(
             f"SELECT * FROM \"user\" WHERE username = {self.__current_user};"
         )
         return self.__fetch_data_from_cursor()
-
-    # ---- TBD
+    
     @__connection_manager
-    def show_all_listings(self):
-        # self.__cur.execute(
-        #     f"SELECT * FROM item WHERE endtime > CURRENT_TIMESTAMP;"
-        # )
-        # result = self.__fetch_data_from_cursor()
-        pass
+    def get_user_stats(self):
+        """For stats on top of tabs won_auctions, feedback and payment under user profile"""
+        self.__cur.execute(
+            f"REFRESH MATERIALIZED VIEW user_statistics;\
+              SELECT * FROM user_statistics WHERE username = {self.__current_user};"
+        )
+        return self.__fetch_data_from_cursor()
 
     @__connection_manager
-    def show_my_watchlist(self):
-        pass
+    def get_won_auctions(self):
+        self.__cur.execute(f"""
+        SELECT bid.item_id, title, description, image_path, amount
+        FROM
+            bid
+            CROSS JOIN (SELECT * FROM items_status WHERE time_left < 0) AS past_auctions
+        WHERE 
+            bid.item_id = past_auctions.item_id AND 
+            bid.amount = past_auctions.highest_bid 
+            AND user_username = '{self.__current_user}'
+        """)
 
-# db = Database()
-# db.database_dump()
+        return self.__fetch_data_from_cursor()
+
+    @__connection_manager
+    def get_feedback(self):
+        self.__cur.execute(f"SELECT * FROM feedback WHERE receiver = '{self.__current_user}';")
+        
+        return self.__fetch_data_from_cursor()
+
+    @__connection_manager
+    def get_payments(self):
+        self.__cur.execute(f"""
+        SELECT 
+            item_id,
+            item.user_username AS seller,
+            payment.user_username AS buyer,
+            date,
+            type,
+            amount,
+            CASE 
+                WHEN payment.user_username = '{self.__current_user}' THEN 'Purchase'
+                ELSE 'Sale'
+            END action
+            
+        FROM payment
+        JOIN item ON item.id = payment.item_id
+        WHERE payment.user_username = '{self.__current_user}' OR item.user_username = '{self.__current_user}'
+        """)
+        
+        return self.__fetch_data_from_cursor()
+        

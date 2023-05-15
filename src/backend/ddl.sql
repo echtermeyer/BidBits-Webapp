@@ -75,8 +75,10 @@ CREATE TABLE Bid (
 INSERT INTO Bid (amount, bidTime, user_username, item_id) VALUES
 (1200420124, '2023-05-13 09:10:11', 'Karen', 2),
 (1300000000, '2023-05-13 12:13:14', 'John', 2),
-(24, '1999-01-10 09:11:21', 'Alfie', 1);
-
+(24, '1999-01-10 09:11:21', 'Alfie', 1),
+(16, '2020-01-05 19:11:22', 'John', 3),
+(18, '2020-01-09 20:12:52', 'Alfie', 3),
+(19, '2020-01-11 21:00:00', 'John', 3);
 
 -- Create Watchlist table
 CREATE TABLE Watchlist (
@@ -120,9 +122,80 @@ CREATE TABLE Payment (
     user_username VARCHAR(50) REFERENCES "user"(username)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    item INTEGER REFERENCES Item(id) 
+    item_id INTEGER REFERENCES Item(id) 
         ON DELETE CASCADE
 );
 
 INSERT INTO Payment VALUES
 (42, '2020-01-02 13:02:22', 'Credit Card', 'John', 3);
+
+
+-- Create items_status View
+CREATE VIEW items_status AS
+	SELECT 
+		item.name AS title, 
+		item.id AS item_id, 
+		item.description, 
+		item.imageUrl AS image_path,  
+		EXTRACT(DAY FROM AGE(item.endtime, CURRENT_TIMESTAMP)) AS time_left,
+		max_bids.highest_bid
+		
+	FROM item 
+	JOIN (SELECT item_id, MAX(amount) as highest_bid FROM bid GROUP BY item_id) AS max_bids ON item.id = max_bids.item_id;
+
+-- Create user_statistics materialized view (needs to be refreshed manually)
+CREATE MATERIALIZED VIEW user_statistics AS
+    SELECT 
+        username,
+        participated_auctions,
+        won_auctions,
+        CAST(average_rating AS Integer),
+        total_expenses,
+        total_income
+    FROM 
+        "user"
+        
+        LEFT JOIN (
+        SELECT user_username, COUNT(user_username) AS participated_auctions
+        FROM (
+            SELECT 
+                item_id,
+                user_username, 
+                COUNT(user_username) AS number_of_bids 
+            FROM bid 
+            GROUP BY item_id, user_username
+        ) AS bids_per_item
+        GROUP BY user_username
+        ) AS participation ON "user".username = participation.user_username	
+        
+        LEFT Join (
+        SELECT user_username, COUNT(user_username) AS won_auctions
+        FROM
+            bid
+            CROSS JOIN (SELECT * FROM items_status WHERE time_left < 0) AS past_auctions
+        WHERE bid.item_id = past_auctions.item_id AND bid.amount = past_auctions.highest_bid
+        GROUP BY user_username
+        ) AS victories ON victories.user_username = "user".username
+        
+        LEFT JOIN(
+        SELECT 
+            user_username AS buyer,
+            SUM(amount) AS total_expenses
+        FROM payment
+        GROUP BY user_username
+        ) AS expenses ON expenses.buyer = "user".username
+
+        LEFT JOIN(
+        SELECT 
+            item.user_username AS seller, 
+            SUM(amount) AS total_income
+        FROM payment
+        JOIN item ON item.id = payment.item_id
+        GROUP BY seller
+        ) AS income ON income.seller = "user".username
+
+        LEFT JOIN (
+            SELECT receiver, AVG(rating) AS average_rating
+            FROM feedback 
+            GROUP BY receiver
+        ) AS average_feedback ON average_feedback.receiver = "user".username;
