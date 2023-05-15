@@ -230,6 +230,15 @@ def update_user(n, email, firstname, lastname, address, phone):
         return dbc.Alert(message, color="danger")
         
 
+@app.callback(Output('uploaded-file-name', 'children'),
+              Input('item-image', 'filename'))
+def update_uploaded_file_name(list_of_names):
+    if list_of_names is not None:
+        return html.P(f"Uploaded file: {list_of_names}")
+    else:
+        return html.P("No file uploaded yet.")
+
+
 @app.callback(
     Output('alert-container', 'children'),
     [Input('start-auction', 'n_clicks')],
