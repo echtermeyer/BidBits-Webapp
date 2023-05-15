@@ -5,7 +5,7 @@ from pathlib import Path
 
 import dash
 import dash_bootstrap_components as dbc
-import dash_html_components as html
+from dash import html
 from dash.dependencies import Input, Output, State, MATCH
 from dash.exceptions import PreventUpdate
 

@@ -1,5 +1,5 @@
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import html
+from dash import dcc
 import dash_bootstrap_components as dbc
 
 from backend.user import retrieve_user_information, retrieve_feedback, retrieve_payment_information, retrieve_won_auctions
