@@ -122,3 +122,20 @@ def retrieve_feedback():
             "date": "05/12/2023"
         }
     ]
+
+
+def retrieve_total_paid_agg() -> float:
+    return 1200.41
+
+
+def retrieve_user_rating_agg() -> float:
+    # Rounded to one digit
+    return 3.8
+
+
+def retrieve_won_auctions_agg() -> int:
+    return 3
+
+
+def retrieve_participated_auctions_agg() -> int:
+    return 7

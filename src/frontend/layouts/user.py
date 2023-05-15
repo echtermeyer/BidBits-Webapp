@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 
 from backend.user import retrieve_user_information, retrieve_feedback, retrieve_payment_information, retrieve_won_auctions
+from backend.user import retrieve_total_paid_agg, retrieve_user_rating_agg, retrieve_won_auctions_agg, retrieve_participated_auctions_agg
 
 
 def user_layout():
@@ -129,7 +130,11 @@ def personal_data_layout():
     )
 
 def won_auctions_layout():
-    elements = [html.H2("Finished Auctions", style={"font-family": "Roboto", "text-align": "center"}),]
+    elements = [
+        html.H2("Finished Auctions", style={"font-family": "Roboto", "text-align": "center"}),
+        html.H5(f"Won Auctions: {retrieve_won_auctions_agg()}  |  Participated Auctions: {retrieve_participated_auctions_agg()}", 
+            style={"font-family": "Roboto", "text-align": "center"})
+    ]
 
     for i, auction in enumerate(retrieve_won_auctions()):
         item = dbc.Card([
@@ -154,7 +159,10 @@ def won_auctions_layout():
 
 
 def feedback_layout():
-    elements = [html.H2("Buyer Feedback", style={"font-family": "Roboto", "text-align": "center"}),]
+    elements = [
+        html.H2("Buyer Feedback", style={"font-family": "Roboto", "text-align": "center"}),
+        html.H5(f"User Rating: {retrieve_user_rating_agg()}/5.0 stars", style={"font-family": "Roboto", "text-align": "center"})
+    ]
 
     for i, review in enumerate(retrieve_feedback()):
         item = dbc.Card([
@@ -176,7 +184,10 @@ def feedback_layout():
 
 
 def payments_layout():
-    elements = [html.H2("Payment History", style={"font-family": "Roboto", "text-align": "center"}),]
+    elements = [
+        html.H2("Payment History", style={"font-family": "Roboto", "text-align": "center"}),
+        html.H5(f"Total paid: ${retrieve_total_paid_agg()}", style={"font-family": "Roboto", "text-align": "center"})
+    ]
 
     for i, payment in enumerate(retrieve_payment_information()):
         item = dbc.Card([
