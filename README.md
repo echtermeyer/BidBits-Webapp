@@ -10,4 +10,9 @@ General steps you have to follow in order to use this repository:
 
 Start the application using:
 
-- `python .\src\main.py`
+- `docker-compose build`
+- `docker-compse up`
+
+To clean everything (including volumes):
+
+- `docker-compose down -v`
