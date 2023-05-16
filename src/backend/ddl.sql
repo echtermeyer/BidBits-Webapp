@@ -48,7 +48,7 @@ CREATE TABLE Item (
     endTime TIMESTAMP NOT NULL,
     imageUrl TEXT NOT NULL,
     user_username VARCHAR(50) REFERENCES "user"(username) 
-        ON DELETE CASCADE 
+        ON DELETE SET NULL,
     category_id INTEGER REFERENCES Categorisation(id) 
 );
 
@@ -64,9 +64,8 @@ CREATE TABLE Bid (
     amount NUMERIC NOT NULL,
     bidTime TIMESTAMP NOT NULL,
     user_username VARCHAR(50) REFERENCES "user"(username) 
-        ON DELETE CASCADE
+        ON DELETE SET NULL,
     item_id INTEGER REFERENCES Item(id) 
-        ON DELETE CASCADE
 );
 
 INSERT INTO Bid (amount, bidTime, user_username, item_id) VALUES
@@ -80,8 +79,8 @@ INSERT INTO Bid (amount, bidTime, user_username, item_id) VALUES
 -- Create Watchlist table
 CREATE TABLE Watchlist (
     user_username VARCHAR(50) REFERENCES "user"(username) 
-        ON DELETE CASCADE
-    item_id SERIAL REFERENCES Item(id) 
+        ON DELETE CASCADE,
+    item_id SERIAL REFERENCES Item(id), 
     CONSTRAINT unique_watchlist_entry UNIQUE (user_username, item_id)
 );
 
@@ -97,7 +96,7 @@ CREATE TABLE Feedback (
     rating INTEGER NOT NULL CHECK (rating BETWEEN 0 AND 10),
     comment TEXT,
     sender VARCHAR(50) REFERENCES "user"(username) 
-        ON DELETE SET NULL
+        ON DELETE SET NULL,
     receiver VARCHAR(50) REFERENCES "user"(username) 
         ON DELETE SET NULL
 );
@@ -113,7 +112,7 @@ CREATE TABLE Payment (
     date TIMESTAMP NOT NULL,
     type PAYMENT_TYPE NOT NULL,
     user_username VARCHAR(50) REFERENCES "user"(username)
-        ON DELETE CASCADE
+        ON DELETE SET NULL,
     item_id INTEGER REFERENCES Item(id) 
 );
 
