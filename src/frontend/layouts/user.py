@@ -2,11 +2,17 @@ from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 
-from backend.user import retrieve_user_information, retrieve_feedback, retrieve_payment_information, retrieve_won_auctions
-from backend.user import retrieve_total_paid_agg, retrieve_user_rating_agg, retrieve_won_auctions_agg, retrieve_participated_auctions_agg
 
-
-def user_layout():
+def user_layout(
+        fn_get_user_information,
+        fn_get_feedback_information,
+        fn_get_payment_information,
+        fn_get_won_auctions_information,
+        fn_get_agg_total_paid,
+        fn_get_agg_user_rating,
+        fn_get_agg_won_auctions,
+        fn_get_agg_partc_auctions
+):
     return html.Div(style={"height": "100vh", "background": "linear-gradient(to right, yellow, orange)", "overflow": "auto"}, children=[
         html.Div([
             dcc.Link(
@@ -25,16 +31,28 @@ def user_layout():
 
         html.Div(style={"height": "70vh", "overflow": "auto", "margin-top": "2rem"},
                  children=[
-                    html.Div(id="personal-data-content", children=personal_data_layout()),
-                    html.Div(id="won-auctions-content", children=won_auctions_layout(), style={'display': 'none'}),
-                    html.Div(id="feedback-content", children=feedback_layout(), style={'display': 'none'}),
-                    html.Div(id="payments-content", children=payments_layout(), style={'display': 'none'})
+                    html.Div(id="personal-data-content", children=personal_data_layout(
+                        fn_get_user_information
+                    )),
+                    html.Div(id="won-auctions-content", children=won_auctions_layout(
+                        fn_get_won_auctions_information, 
+                        fn_get_agg_won_auctions, 
+                        fn_get_agg_partc_auctions
+                    ), style={'display': 'none'}),
+                    html.Div(id="feedback-content", children=feedback_layout(
+                        fn_get_feedback_information,
+                        fn_get_agg_user_rating
+                    ), style={'display': 'none'}),
+                    html.Div(id="payments-content", children=payments_layout(
+                        fn_get_payment_information,
+                        fn_get_agg_total_paid
+                    ), style={'display': 'none'})
                  ]),
     ])
 
 
-def personal_data_layout():
-    user = retrieve_user_information()
+def personal_data_layout(fn_get_user_information):
+    user = fn_get_user_information()[0]
     
     return html.Div(
         style={"margin-left": "10%", "margin-right": "10%"},
@@ -129,14 +147,14 @@ def personal_data_layout():
         ]
     )
 
-def won_auctions_layout():
+def won_auctions_layout(get_won_auctions_information, fn_get_agg_won_auction, fn_get_agg_partc_auctions):
     elements = [
         html.H2("Finished Auctions", style={"font-family": "Roboto", "text-align": "center"}),
-        html.H5(f"Won Auctions: {retrieve_won_auctions_agg()}  |  Participated Auctions: {retrieve_participated_auctions_agg()}", 
+        html.H5(f"Won Auctions: {fn_get_agg_won_auction()}  |  Participated Auctions: {fn_get_agg_partc_auctions()}", 
             style={"font-family": "Roboto", "text-align": "center"})
     ]
 
-    for i, auction in enumerate(retrieve_won_auctions()):
+    for i, auction in enumerate(get_won_auctions_information()):
         item = dbc.Card([
             dbc.Row([
                 dbc.Col(dbc.CardImg(src=f"/assets/{auction['image_path']}", top=True), width=6),
@@ -157,21 +175,22 @@ def won_auctions_layout():
         children=elements
     )
 
-
-def feedback_layout():
+def feedback_layout(fn_get_feedback_information, fn_get_agg_user_rating):
     elements = [
         html.H2("Buyer Feedback", style={"font-family": "Roboto", "text-align": "center"}),
-        html.H5(f"User Rating: {retrieve_user_rating_agg()}/5.0 stars", style={"font-family": "Roboto", "text-align": "center"})
+        html.H5(f"User Rating: {fn_get_agg_user_rating()}/5.0 stars", style={"font-family": "Roboto", "text-align": "center"})
     ]
 
-    for i, review in enumerate(retrieve_feedback()):
+    for i, review in enumerate(fn_get_feedback_information()):
+        print(review)
         item = dbc.Card([
             dbc.Row([
                 dbc.Col(dbc.CardBody([
                     html.H4(f"Feedback from {review['sender']}", className="card-title", id={'type': 'title-text', 'index': i}),
-                    html.P(review['message'], className="card-text"),
+                    html.P(review['comment'], className="card-text"),
                     html.H6(f"Rating: {review['rating']}/5 stars", className="card-text"),
-                    html.H6(f"Date: {review['date']}", className="card-text"),
+                    # TODO: Add again
+                    # html.H6(f"Date: {review['date']}", className="card-text"),
                 ], className="d-flex flex-column"), width=6)
             ])
         ], style={"width": "50%", "margin": "1rem auto"})
@@ -182,22 +201,23 @@ def feedback_layout():
         children=elements
     )
 
-
-def payments_layout():
+def payments_layout(fn_get_payment_information, fn_get_agg_total_paid):
     elements = [
         html.H2("Payment History", style={"font-family": "Roboto", "text-align": "center"}),
-        html.H5(f"Total paid: ${retrieve_total_paid_agg()}", style={"font-family": "Roboto", "text-align": "center"})
+        html.H5(f"Total paid: ${fn_get_agg_total_paid()}", style={"font-family": "Roboto", "text-align": "center"})
     ]
 
-    for i, payment in enumerate(retrieve_payment_information()):
+    for i, payment in enumerate(fn_get_payment_information()):
+        print(payment)
         item = dbc.Card([
             dbc.Row([
                 dbc.Col(dbc.CardBody([
-                    html.H4(f"Payment for: {payment['title']}", className="card-title", id={'type': 'title-text', 'index': i}),
+                    # TODO: Add again
+                    # html.H4(f"Payment for: {payment['title']}", className="card-title", id={'type': 'title-text', 'index': i}),
                     html.P(f"Item Code: #{payment['item_id']}", className="card-text"),
-                    html.P(f"Payment Method: {payment['method']}", className="card-text"),
+                    html.P(f"Payment Method: {payment['type']}", className="card-text"),
                     html.P(f"Payment Date: {payment['date']}", className="card-text"),
-                    html.H6(f"Paid amount: {payment['amount']}", className="card-text"),
+                    html.H6(f"Paid amount: ${payment['amount']:.2f}", className="card-text"),
                 ], className="d-flex flex-column"), width=6)
             ])
         ], style={"width": "50%", "margin": "1rem auto"})

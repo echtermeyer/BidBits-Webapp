@@ -20,3 +20,9 @@ Bilder über Internet-URLs anzeigen
 
 # Notiz von David an David
 - Wenn's nach dem Pullen beim Ausführen des Scripts einen Error gibt, erstmal den Port in der config Datei auf 5432 ändern. Angleichung des Ports in pgAdmin hat nicht funktioniert.
+
+
+# Von Eric:
+- image pfade überarbeiten
+- "date" key fehlt bei "Feedback"
+- "title" key fehlt bei "Payment"

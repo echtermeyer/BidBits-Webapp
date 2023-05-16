@@ -1,12 +1,8 @@
 import dash_bootstrap_components as dbc
 from dash import html
-from dash import dcc
 
 
-from backend.dashboard import retrieve_all_items, retrieve_watchlist
-
-
-def dashboard_layout():
+def dashboard_layout(fn_get_all_items, fn_get_watchlist_items):
     return html.Div(style={"height": "100vh", "background": "linear-gradient(to right, yellow, orange)", "overflow": "auto"}, children=[
         html.H1("Dashboard", style={"font-family": "Roboto", "text-align": "center", "font-size": "3rem", "font-weight": "bold", "margin-top": "3rem", "margin-bottom": "1rem", "color": "black"}),
         
@@ -19,8 +15,8 @@ def dashboard_layout():
 
         html.Div(style={"height": "70vh", "overflow": "auto", "margin-top": "2rem"},
                  children=[
-                     html.Div(id="all-bids-content", children=generate_items(retrieve_all_items())),
-                     html.Div(id="watchlist-content", children=generate_items(retrieve_watchlist()), style={'display': 'none'})
+                     html.Div(id="all-bids-content", children=generate_items(fn_get_all_items())),
+                     html.Div(id="watchlist-content", children=generate_items(fn_get_watchlist_items()), style={'display': 'none'})
                  ]),
     ])
 

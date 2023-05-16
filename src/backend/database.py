@@ -200,16 +200,16 @@ class Database:
         self.__cur.execute(
             f"""
                 SELECT 
-                    item_status.*,
-	                CASE
+                    items_status.*,
+                    CASE
                         WHEN filtered_watchlist.user_username is NUll THEN 0
                         ELSE 1
-                    END is_watchlist
+                    END as is_watchlist
                 FROM 
                     items_status 
                     LEFT JOIN (SELECT * FROM watchlist WHERE user_username = '{self.__current_user}') AS filtered_watchlist 
                         ON items_status.item_id = filtered_watchlist.item_id 
-                WHERE time_left > 0;
+                WHERE items_status.time_left > 0;
             """
             )
         return self.__fetch_data_from_cursor()
@@ -222,7 +222,7 @@ class Database:
     def get_personal_data(self):
         """For tab Personal Data under user profile"""
         self.__cur.execute(
-            f"SELECT * FROM \"user\" WHERE username = {self.__current_user};"
+            f"SELECT * FROM \"user\" WHERE username = '{self.__current_user}';"
         )
         return self.__fetch_data_from_cursor()
     
@@ -231,7 +231,7 @@ class Database:
         """For stats on top of tabs won_auctions, feedback and payment under user profile"""
         self.__cur.execute(
             f"REFRESH MATERIALIZED VIEW user_statistics;\
-              SELECT * FROM user_statistics WHERE username = {self.__current_user};"
+              SELECT * FROM user_statistics WHERE username = '{self.__current_user}';"
         )
         return self.__fetch_data_from_cursor()
 
@@ -277,4 +277,20 @@ class Database:
         """)
         
         return self.__fetch_data_from_cursor()
+    
+    # TODO: Implement 
+    def get_agg_total_paid(self):
+        return 120.01
+    
+    # TODO: Implement 
+    def get_agg_user_rating(self):
+        return 3.9
+    
+    # TODO: Implement 
+    def get_agg_won_auctions(self):
+        return 3
+    
+    # TODO: Implement 
+    def get_agg_participated_auctions(self):
+        return 7
         
