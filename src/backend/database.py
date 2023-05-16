@@ -1,3 +1,4 @@
+import os
 import json
 
 from pathlib import Path
@@ -9,69 +10,20 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from sqlalchemy import text, create_engine
 
 
-path_file = Path(__file__)
-with open(path_file.parent.parent / "config.json") as f:
-    config = json.load(f)
-
-
 class Database:
     def __init__(self):
-        self.__create_database(
-            dbname=config["POSTGRES"]["DBNAME"],
-            user=config["POSTGRES"]["USER"],
-            password=config["POSTGRES"]["PASSWORD"],
-            host=config["POSTGRES"]["HOST"],
-            port=config["POSTGRES"]["PORT"]
-        )
         self.__conn = None
         self.__cur = None
         self.__current_user = None
 
-    def __create_database(self, dbname, user, password, host, port):
-        engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/')
-
-        with engine.connect() as connection:
-            connection.connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-            result = connection.execute(text(f"SELECT datname FROM pg_database WHERE datname = '{dbname}'")).fetchone()
-            
-            if result:
-                print(f"Database {dbname} already exists!")
-                print(f"Für Debugging: {result}")
-            else:
-                connection.execute(text(f"CREATE DATABASE {dbname}"))
-
-                conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
-                self.__fill_database(path_file.parent / "ddl.sql", conn)
-                conn.close()
-
-                print(f"Database {dbname} created successfully!")
-
-        engine.dispose()
-
-    def __fill_database(self, file_path, conn):
-        cursor = conn.cursor()
-
-        with open(file_path, 'r') as file:
-            sql = file.read()
-
-        sql_commands = sql.split(';')
-        for command in sql_commands:
-            try:
-                if command.strip() != '':
-                    cursor.execute(command)
-                    print(f"SQL command executed successfully: {command}")
-                    conn.commit()
-            except Exception as e:
-                print(f"An error occurred while executing the SQL command: {e}")
-
     # ----- Utilities
     def __connect(self):
         self.__conn = psycopg2.connect(
-            dbname=config["POSTGRES"]["DBNAME"],
-            user=config["POSTGRES"]["USER"],
-            password=config["POSTGRES"]["PASSWORD"],
-            host=config["POSTGRES"]["HOST"],
-            port=config["POSTGRES"]["PORT"]
+            dbname=os.getenv("POSTGRES_DB"),
+            user=os.getenv("POSTGRES_USER"),
+            password=os.getenv("POSTGRES_PASSWORD"),
+            host=os.getenv("POSTGRES_HOST"),
+            port=os.getenv("POSTGRES_PORT")
         )
 
         self.__cur = self.__conn.cursor()
@@ -81,8 +33,9 @@ class Database:
         self.__cur.close()
         self.__conn.close()
 
-    def __connection_manager(func):  
-        """Decorator function that takes car of everything concerning the database connection"""      
+    def __connection_manager(func):
+        """Decorator function that takes car of everything concerning the database connection"""
+
         def wrapper(self, *args, **kwargs):
             try:
                 self.__connect()
@@ -91,9 +44,10 @@ class Database:
                 return (True, "success") if result is None else result
             except Exception as e:
                 print(e)
-                Warning(f"\n!== Something went wrong. Might be a database error. Check datatypes ==!\n{e}")
+                Warning(
+                    f"\n!== Something went wrong. Might be a database error. Check datatypes ==!\n{e}")
                 return (False, f"Database error. Check Data Types.{e}")
-            
+
         return wrapper
 
     def __fetch_data_from_cursor(self):
@@ -109,7 +63,8 @@ class Database:
     # @__connection_manager
     # def database_dump(self):
         # Check if tables already exist
-        self.__cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
+        self.__cur.execute(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
         table_names = self.__cur.fetchall()
 
         if table_names.__len__() != 0:
@@ -124,17 +79,19 @@ class Database:
             sql = sql_file.read()
             print(sql)
             self.__cur.execute(sql)
-            
-        self.__cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
-        print(f"\n == Successfully Created Tables == \n{[x[0] for x in self.__cur.fetchall()]}\n")
-  
+
+        self.__cur.execute(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
+        print(
+            f"\n == Successfully Created Tables == \n{[x[0] for x in self.__cur.fetchall()]}\n")
+
     # ---- Functions that correspond to button clicks
     @__connection_manager
     def register(self, username, email, first_name, last_name, address, phone, password, conf_password):
         # Check if passwords match
         if password != conf_password:
             return (False, "Passwords do not match")
-        
+
         # Register User
         self.__cur.execute(
             f"INSERT INTO \"user\" (username, email, password, firstName, lastName, address, phone) VALUES\
@@ -142,16 +99,18 @@ class Database:
 
     @__connection_manager
     def login(self, username, password):
-        self.__cur.execute(f"SELECT * FROM \"user\" WHERE username = '{username}' AND password = '{password}'")
+        self.__cur.execute(
+            f"SELECT * FROM \"user\" WHERE username = '{username}' AND password = '{password}'")
         if self.__cur.fetchall():
             self.__current_user = username
         else:
             return (False, "Incorrect username or password")
-    
+
     # TODO: Error: Database error. Check Data Types.duplicate key value violates unique constraint "item_pkey" DETAIL: Key (id)=(1) already exists.
     @__connection_manager
     def create_item(self, title, description, category, start_price, auction_duration, image):
-        self.__cur.execute(f"SELECT id from categorisation WHERE category = '{category.split(' - ')[0]}' AND subcategory = '{category.split(' - ')[1]}'")
+        self.__cur.execute(
+            f"SELECT id from categorisation WHERE category = '{category.split(' - ')[0]}' AND subcategory = '{category.split(' - ')[1]}'")
         category_id, = self.__cur.fetchall()[0]
         self.__cur.execute(
             f"INSERT INTO Item (name, description, startingPrice, startTime, endTime, imageUrl, user_username, category_id) VALUES\
@@ -168,7 +127,7 @@ class Database:
         current_bid, = self.__cur.fetchall()[0]
         if amount < current_bid:
             return (False, "Your bid must exceed the highest bid")
-        
+
         # Place Bid
         self.__cur.execute(
             f"INSERT INTO bid (amount, bidtime, user_username, item_id) VALUES\
@@ -218,13 +177,13 @@ class Database:
                         ON items_status.item_id = filtered_watchlist.item_id 
                 WHERE items_status.time_left > 0;
             """
-            )
+        )
         return self.__fetch_data_from_cursor()
 
     def get_watchlist_items(self):
         active_items = self.get_active_items()
         return [item for item in active_items if item["is_watchlist"]]
-    
+
     @__connection_manager
     def get_personal_data(self):
         """For tab Personal Data under user profile"""
@@ -232,7 +191,7 @@ class Database:
             f"SELECT * FROM \"user\" WHERE username = '{self.__current_user}';"
         )
         return self.__fetch_data_from_cursor()
-    
+
     @__connection_manager
     def get_user_stats(self):
         """For stats on top of tabs won_auctions, feedback and payment under user profile"""
@@ -259,8 +218,9 @@ class Database:
 
     @__connection_manager
     def get_feedback(self):
-        self.__cur.execute(f"SELECT * FROM feedback WHERE receiver = '{self.__current_user}';")
-        
+        self.__cur.execute(
+            f"SELECT * FROM feedback WHERE receiver = '{self.__current_user}';")
+
         return self.__fetch_data_from_cursor()
 
     @__connection_manager
@@ -282,22 +242,21 @@ class Database:
         JOIN item ON item.id = payment.item_id
         WHERE payment.user_username = '{self.__current_user}' OR item.user_username = '{self.__current_user}'
         """)
-        
+
         return self.__fetch_data_from_cursor()
-    
-    # TODO: Implement 
+
+    # TODO: Implement
     def get_agg_total_paid(self):
         return 120.01
-    
-    # TODO: Implement 
+
+    # TODO: Implement
     def get_agg_user_rating(self):
         return 3.9
-    
-    # TODO: Implement 
+
+    # TODO: Implement
     def get_agg_won_auctions(self):
         return 3
-    
-    # TODO: Implement 
+
+    # TODO: Implement
     def get_agg_participated_auctions(self):
         return 7
-        
