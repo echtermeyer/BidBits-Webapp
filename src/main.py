@@ -36,9 +36,18 @@ def display_page(pathname):
     if pathname == '/' or pathname is None:
         return home_layout()
     elif pathname == '/dashboard':
-        return dashboard_layout()
+        return dashboard_layout(db.get_active_items, db.get_watchlist_items)
     elif pathname == '/user':
-        return user_layout()
+        return user_layout(
+            db.get_personal_data,
+            db.get_feedback,
+            db.get_payments,
+            db.get_won_auctions,
+            db.get_agg_total_paid,
+            db.get_agg_user_rating,
+            db.get_agg_won_auctions,
+            db.get_agg_participated_auctions
+        )
     elif pathname == '/create':
         return create_bid_layout()
     else:
