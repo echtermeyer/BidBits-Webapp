@@ -40,11 +40,8 @@ def display_page(pathname):
             db.get_personal_data,
             db.get_feedback,
             db.get_payments,
-            db.get_won_auctions,
-            db.get_agg_total_paid,
-            db.get_agg_user_rating,
-            db.get_agg_won_auctions,
-            db.get_agg_participated_auctions
+            db.get_my_auctions,
+            db.get_user_stats()[0]
         )
     elif pathname == '/create':
         return create_bid_layout()
