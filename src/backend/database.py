@@ -36,7 +36,6 @@ class Database:
             
             if result:
                 print(f"Database {dbname} already exists!")
-                print(f"Für Debugging: {result}")
             else:
                 connection.execute(text(f"CREATE DATABASE {dbname}"))
 
@@ -160,16 +159,21 @@ class Database:
 
     @__connection_manager
     def place_bid(self, amount, item_id):
-        # Check if amount > highest bid
-        # TODO: Use MAX to retrieve the highest bid
+        print(0)
         self.__cur.execute(
-            f"SELECT amount FROM bid WHERE item_id = 2 ORDER BY bidtime desc LIMIT 1;"
+            f"SELECT highest_bid, highest_bidder, seller FROM items_status WHERE item_id = {item_id}"
         )
-        current_bid, = self.__cur.fetchall()[0]
-        if amount < current_bid:
+        data = self.__fetch_data_from_cursor()
+        print(data)
+        if data[0]["seller"] == self.__current_user:
+            return (False, "You can't buy your own stuff")
+        if data[0]["highest_bidder"] == self.__current_user:
+            return (False, "You can't outbid yourself")
+        print(2)
+        if data[0]["highest_bid"] > int(amount):
+            print(22)
             return (False, "Your bid must exceed the highest bid")
-        
-        # Place Bid
+        print(3)
         self.__cur.execute(
             f"INSERT INTO bid (amount, bidtime, user_username, item_id) VALUES\
             ('{amount}', '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', '{self.__current_user}', '{item_id}')"
@@ -188,9 +192,12 @@ class Database:
 
     @__connection_manager
     def update_userdata(self, email, first_name, last_name, address, phone):
+        print(email, first_name, last_name, address, phone)
+        all_inputs = {"email": email, "firstname": first_name, "lastname":last_name, "address": address, "phone": phone}
+        filled_inputs = ", ".join([f"{key} = '{value}'" for key, value in all_inputs.items() if value is not None])
+        print(filled_inputs)
         self.__cur.execute(
-            f"UPDATE \"user\" SET email = '{email}', firstname = '{first_name}', lastname = '{last_name}', address = '{address}', phone = '{phone}'\
-            WHERE username = '{self.__current_user}';"
+            f"UPDATE \"user\" SET {filled_inputs} WHERE username = '{self.__current_user}';"
         )
         print(self.__current_user, email, first_name)
 
@@ -202,6 +209,13 @@ class Database:
         )
 
     # ---- Functions that return data for page rendering
+    @__connection_manager
+    def get_categories(self):
+        self.__cur.execute(
+            f"SELECT category || ' - ' || subcategory AS category FROM categorisation"
+            )
+        return [x["category"] for x in self.__fetch_data_from_cursor()]
+
     @__connection_manager
     def get_active_items(self):
         self.__cur.execute(
@@ -243,16 +257,16 @@ class Database:
         return self.__fetch_data_from_cursor()
 
     @__connection_manager
-    def get_won_auctions(self):
+    def get_my_auctions(self):
         self.__cur.execute(f"""
-        SELECT bid.item_id, title, description, image_path, amount
-        FROM
-            bid
-            CROSS JOIN (SELECT * FROM items_status WHERE time_left < 0) AS past_auctions
-        WHERE 
-            bid.item_id = past_auctions.item_id AND 
-            bid.amount = past_auctions.highest_bid 
-            AND user_username = '{self.__current_user}'
+		SELECT item_id, title, description, image_path, highest_bid AS amount, 
+			CASE 
+				WHEN highest_bidder = '{self.__current_user}' THEN 'buyer'
+				WHEN seller = '{self.__current_user}' THEN 'seller'
+			END role
+		FROM items_status 
+		WHERE time_left < 0
+		AND highest_bidder = '{self.__current_user}' OR seller = '{self.__current_user}';
         """)
 
         return self.__fetch_data_from_cursor()
@@ -285,19 +299,3 @@ class Database:
         
         return self.__fetch_data_from_cursor()
     
-    # TODO: Implement 
-    def get_agg_total_paid(self):
-        return 120.01
-    
-    # TODO: Implement 
-    def get_agg_user_rating(self):
-        return 3.9
-    
-    # TODO: Implement 
-    def get_agg_won_auctions(self):
-        return 3
-    
-    # TODO: Implement 
-    def get_agg_participated_auctions(self):
-        return 7
-        

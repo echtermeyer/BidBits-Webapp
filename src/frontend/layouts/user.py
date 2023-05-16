@@ -52,6 +52,7 @@ def user_layout(
 
 
 def personal_data_layout(fn_get_user_information):
+    print(fn_get_user_information())
     user = fn_get_user_information()[0]
     
     return html.Div(
