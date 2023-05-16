@@ -194,6 +194,13 @@ class Database:
         )
         print(self.__current_user, email, first_name)
 
+    @__connection_manager
+    def delete_userdata(self):
+        self.__cur.execute(
+            f"DELETE FROM \"user\"\
+            WHERE username = '{self.__current_user}';"
+        )
+
     # ---- Functions that return data for page rendering
     @__connection_manager
     def get_active_items(self):

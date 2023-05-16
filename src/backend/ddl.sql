@@ -49,15 +49,13 @@ CREATE TABLE Item (
     imageUrl TEXT NOT NULL,
     user_username VARCHAR(50) REFERENCES "user"(username) 
         ON DELETE CASCADE 
-        ON UPDATE CASCADE,
     category_id INTEGER REFERENCES Categorisation(id) 
-        ON DELETE SET NULL
 );
 
 INSERT INTO Item VALUES
-(1, 'A cat with large ears', 'This cat is a great listener. Buy it now!', 20, '2023-05-14 12:11:08', '2023-06-02 11:11:01', 'https://en.wikipedia.org/wiki/Cat#/media/File:Kittyply_edit1.jpg', 'Karen', 1),
-(2, 'The Amber Room', 'Look what I found under my bed. It is golden, it is good.', 1200420123, '2023-05-13 06:07:08', '2023-05-30 06:07:08', 'https://de.wikipedia.org/wiki/Bernsteinzimmer#/media/Datei:Andrey_Zeest_-_Amber_Room_2_(autochrome).jpg', 'Alfie', 4),
-(3, 'A red bar stool', 'Good Chair, nice and comfy. Does not wobble.', 15, '2020-01-01 19:12:22', '2020-01-02 13:02:22', 'https://cdn.eichholtz.com/media/catalog/product/cache/62a0001ba384dd559aac2c6dd8434b29/1/1/114878_0_1_1.jpg', 'Karen', 3);
+(1, 'A cat with large ears', 'This cat is a great listener. Buy it now!', 20, '2023-05-14 12:11:08', '2023-06-02 11:11:01', 'kitten.jpg', 'Karen', 1),
+(2, 'The Amber Room', 'Look what I found under my bed. It is golden, it is good.', 1200420123, '2023-05-13 06:07:08', '2023-05-30 06:07:08', 'amber_room.jpg', 'Alfie', 4),
+(3, 'A red bar stool', 'Good Chair, nice and comfy. Does not wobble.', 15, '2020-01-01 19:12:22', '2020-01-02 13:02:22', 'red_chair.jpg', 'Karen', 3);
 
 
 -- Create Bid table
@@ -67,7 +65,6 @@ CREATE TABLE Bid (
     bidTime TIMESTAMP NOT NULL,
     user_username VARCHAR(50) REFERENCES "user"(username) 
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
     item_id INTEGER REFERENCES Item(id) 
         ON DELETE CASCADE
 );
@@ -84,9 +81,7 @@ INSERT INTO Bid (amount, bidTime, user_username, item_id) VALUES
 CREATE TABLE Watchlist (
     user_username VARCHAR(50) REFERENCES "user"(username) 
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
     item_id SERIAL REFERENCES Item(id) 
-        ON DELETE CASCADE,
     CONSTRAINT unique_watchlist_entry UNIQUE (user_username, item_id)
 );
 
@@ -102,11 +97,9 @@ CREATE TABLE Feedback (
     rating INTEGER NOT NULL CHECK (rating BETWEEN 0 AND 10),
     comment TEXT,
     sender VARCHAR(50) REFERENCES "user"(username) 
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
+        ON DELETE SET NULL
     receiver VARCHAR(50) REFERENCES "user"(username) 
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON DELETE SET NULL
 );
 
 INSERT INTO Feedback VALUES
@@ -121,9 +114,7 @@ CREATE TABLE Payment (
     type PAYMENT_TYPE NOT NULL,
     user_username VARCHAR(50) REFERENCES "user"(username)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
     item_id INTEGER REFERENCES Item(id) 
-        ON DELETE CASCADE
 );
 
 INSERT INTO Payment VALUES

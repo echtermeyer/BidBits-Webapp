@@ -1,9 +1,11 @@
 # TODOs
 
 ## Backend
-Einen Materialized View 'user_stats' mit buyerusername, average_feedback, total_money_spend, total_money_earned, favorite_category.
-Einen View 'item_status' für aktuelle Item Listings mit den Informationen die auf den Karten angezeigt werden.
+Delete funktion für user -> daten löschen und ausloggen
+
+
 Eine Stored Procedure process_payment, die immer dann getriggered wird wenn eine Auktion ausläuft und daraufhin einen Eintrag in der Tabelle payment macht.
+
 
 ## Fontend
 Einbinden der Backend Funktionen
@@ -13,9 +15,6 @@ Bilder über Internet-URLs anzeigen
 
 # Fragen an Dozent
 - Watchlist ist jetzt eine weak entity die kein eigenes attribut hat. Müssen ihn mal fragen, ob das geht. Habe online keine vergleichbaren Fälle gefunden.
-- Problem: Man braucht den cursor um Datenbanken in Python zu erstellen. Aber: Für die Initialisierung des Cursors muss man sich mit einer Datenbank verbinden. Also: Muss die Datenbank im vorhinein manuell erstellt werden. Frage an Dozent: Gibt's hier nen Trick?
-- Kann oder soll SQLAlchemy benutzt werden? Glaube es ist optional, macht die Arbeit aber anscheinent leichter - würde trotzdem drauf verzichten.
-
 
 
 # Notiz von David an David
