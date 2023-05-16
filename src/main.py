@@ -9,16 +9,13 @@ from dash import html
 from dash.dependencies import Input, Output, State, MATCH
 from dash.exceptions import PreventUpdate
 
-from frontend.layouts.home import home_layout
-from frontend.layouts.serve import serve_layout
-from frontend.layouts.dashboard import dashboard_layout
-from frontend.layouts.user import user_layout
-from frontend.layouts.create import create_bid_layout
-
-from frontend.checks import check_valid_login, check_valid_registration
+from frontend.home import home_layout
+from frontend.serve import serve_layout
+from frontend.dashboard import dashboard_layout
+from frontend.user import user_layout
+from frontend.create import create_bid_layout
 
 from backend.database import Database
-from backend.dashboard import add_bid_to_wishlist, remove_bid_from_whishlist
 
 file_path = Path(__file__)
 
