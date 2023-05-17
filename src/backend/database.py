@@ -154,8 +154,10 @@ class Database:
     @__connection_manager
     def update_userdata(self, email, first_name, last_name, address, phone):
         print(email, first_name, last_name, address, phone)
-        all_inputs = {"email": email, "firstname": first_name, "lastname":last_name, "address": address, "phone": phone}
-        filled_inputs = ", ".join([f"{key} = '{value}'" for key, value in all_inputs.items() if value is not None])
+        all_inputs = {"email": email, "firstname": first_name,
+                      "lastname": last_name, "address": address, "phone": phone}
+        filled_inputs = ", ".join(
+            [f"{key} = '{value}'" for key, value in all_inputs.items() if value is not None])
         print(filled_inputs)
         self.__cur.execute(
             f"UPDATE \"user\" SET {filled_inputs} WHERE username = '{self.__current_user}';"
@@ -174,7 +176,7 @@ class Database:
     def get_categories(self):
         self.__cur.execute(
             f"SELECT category || ' - ' || subcategory AS category FROM categorisation"
-            )
+        )
         return [x["category"] for x in self.__fetch_data_from_cursor()]
 
     @__connection_manager
@@ -224,7 +226,7 @@ class Database:
 			CASE 
 				WHEN highest_bidder = '{self.__current_user}' THEN 'buyer'
 				WHEN seller = '{self.__current_user}' THEN 'seller'
-			END role
+			END AS role
 		FROM items_status 
 		WHERE time_left < 0
 		AND highest_bidder = '{self.__current_user}' OR seller = '{self.__current_user}';
@@ -252,7 +254,7 @@ class Database:
             CASE 
                 WHEN payment.user_username = '{self.__current_user}' THEN 'Purchase'
                 ELSE 'Sale'
-            END action
+            END AS action
             
         FROM payment
         JOIN item ON item.id = payment.item_id
@@ -260,4 +262,3 @@ class Database:
         """)
 
         return self.__fetch_data_from_cursor()
-    
