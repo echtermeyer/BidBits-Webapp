@@ -25,12 +25,11 @@ CREATE TABLE "user" (
     phone VARCHAR(20) NOT NULL UNIQUE
 );
 
--- We chose to use SEQUENCES over SERIAL KEYS in order to populate the database with coherent example data
 CREATE SEQUENCE item_sequence;
 
 -- Create Item table
 CREATE TABLE Item (
-    id INTEGER DEFAULT nextval('item_sequence') KEY PRIMARY KEY,
+    id INTEGER DEFAULT nextval('item_sequence') PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     description TEXT NOT NULL,
     startingPrice NUMERIC DEFAULT 0,
@@ -42,11 +41,9 @@ CREATE TABLE Item (
     category_id INTEGER REFERENCES Categorisation(id) 
 );
 
-CREATE SEQUENCE bid_sequence;
-
 -- Create Bid table
 CREATE TABLE Bid (
-    id INTEGER DEFAULT nextval('bid_sequence') PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     amount NUMERIC NOT NULL,
     bidTime TIMESTAMP NOT NULL,
     user_username VARCHAR(50) REFERENCES "user"(username) 
@@ -62,11 +59,9 @@ CREATE TABLE Watchlist (
     CONSTRAINT unique_watchlist_entry UNIQUE (user_username, item_id)
 );
 
-CREATE SEQUENCE feedback_sequence;
-
 -- Create Feedback table
 CREATE TABLE Feedback (
-    feedbackID INTEGER DEFAULT nextval('feedback_sequence') PRIMARY KEY,
+    feedbackID SERIAL PRIMARY KEY,
     rating INTEGER NOT NULL CHECK (rating BETWEEN 0 AND 10),
     comment TEXT,
     sender VARCHAR(50) REFERENCES "user"(username) 
@@ -152,42 +147,67 @@ INSERT INTO Categorisation VALUES
 (3, 'Antiquities', 'Boring old stuff'),
 (4, 'Antiquities', 'Cool old stuff');
 
-
 INSERT INTO "user" (username, email, password, firstName, lastName, address, phone) VALUES
 ('Karen', 'karen@astrology.com', 'godblessamerica', 'Karen', 'Nonyabis', '68161 Mannheim A1 14', '015789445571'),
 ('Alfie', 'alfie@burminghambakery.com', 'nevergivepowertothebigman', 'Alfonso', 'Solomons', '24220 Burmingham Kensington Road 11', '01578331212'),
-('John', 'John.watson@gmail.com', 'thegameisafoot', 'John', 'Watson', '27615 London Baker Street 221b', '02295001922');
-
+('John', 'John.watson@gmail.com', 'thegameisafoot', 'John', 'Watson', '27615 London Baker Street 221b', '02295001922'),
+('Michael', 'Michael.Scott@dunder_mifflin.de', 'threadlevelmidnight', 'Michael', 'Scott', '12422 Scranton Pennsylvania Paper Paperstreet 11', '0128829192881');
 
 INSERT INTO Item VALUES
-(1, 'Cat with large ears', 'This cat is a great listener. Buy it now!', 20, '2023-05-14 12:11:08', '2023-06-02 11:11:01', 'kitten.jpg', 'Karen', 1),
-(2, 'The Amber Room', 'Look what I found under my bed. It is golden, it is good.', 1200420123, '2023-05-13 06:07:08', '2023-05-30 06:07:08', 'amber_room.jpg', 'Alfie', 4),
-(3, 'A red bar stool', 'Good Chair, nice and comfy. Does not wobble.', 15, '2020-01-01 19:12:22', '2020-01-02 13:02:22', 'red_chair.jpg', 'Karen', 3);
+(1, 'A red bar stool', 'Good Chair, nice and comfy. Does not wobble.', 15, '2020-01-01 19:12:22', '2020-01-02 13:02:22', 'red_chair.jpg', 'Karen', 3),
+(2, 'Tuba from the Titanic', 'There might be still some water in it.', 1000000, '2021-10-03 12:01:42', '2021-11-03 12:01:42', 'tuba.jpg', 'Alfie', 4),
+(3, 'A green frog', 'Just a regular old frog. Nothing fancy.', 1, '2023-05-01 15:01:42', '2023-07-01 15:01:42', 'green_frog.jpg', 'Michael', 2),
+(4, 'The Amber Room', 'Look what I found under my bed. It is golden, it is good.', 1200420123, '2023-05-13 06:07:08', '2023-05-30 06:07:08', 'amber_room.jpg', 'Alfie', 4),
+(5, 'Cat with large ears', 'This cat is a great listener. Buy it now!', 20, '2023-05-14 12:11:08', '2023-06-02 11:11:01', 'kitten.jpg', 'Karen', 1);
 
+-- Set item sequence to 5 so that new inserts do not create duplicate keys
+SELECT setval('item_sequence', 5);
 
 INSERT INTO Bid (amount, bidTime, user_username, item_id) VALUES
-(1200420124, '2023-05-13 09:10:11', 'Karen', 2),
-(1300000000, '2023-05-13 12:13:14', 'John', 2),
-(24, '1999-01-10 09:11:21', 'Alfie', 1),
-(16, '2020-01-05 19:11:22', 'John', 3),
-(18, '2020-01-09 20:12:52', 'Alfie', 3),
-(19, '2020-01-11 21:00:00', 'John', 3);
+-- Red Bar Stool
+(16, '2020-01-05 19:11:22', 'John', 1),
+(18, '2020-01-09 20:12:52', 'Alfie', 1),
+(19, '2020-01-11 21:00:00', 'John', 1),
+-- Tuba
+(1000004, '2021-10-04 10:11:12', 'Michael', 2),
+-- Green Frog
+(2, '2023-05-01 16:02:42', 'Alfie', 3),
+(3, '2023-05-02 15:05:42', 'John', 3),
+(5, '2023-05-02 15:10:42', 'Karen', 3),
+-- Amber Room
+(1200420124, '2023-05-13 09:10:11', 'Karen', 4),
+(1300000000, '2023-05-13 12:13:14', 'Michael', 4),
+-- Cat
+(24, '1999-01-10 09:11:21', 'John', 5),
+(26, '2023-05-01 16:02:42', 'Michael', 5),
+(42, '2023-05-02 15:05:42', 'Alfie', 5);
 
 INSERT INTO Watchlist VALUES
-('Karen', 2),
-('John', 2),
-('Alfie', 1);
+-- Red Bar Stool
+('John', 1),
+('Alfie', 1),
+-- Tuba
+('Michael', 2),
+-- Green Frog
+('Karen', 3),
+('John', 3),
+('Alfie', 3),
+-- Amber Room
+('Michael', 4),
+-- Cat
+('Michael', 5),
+('Alfie', 5);
 
-INSERT INTO Feedback VALUES
-(1, 1, 'Karen sold me a wobbly chair, I am furious.', 'John', 'Karen'),
-(2, 10, 'The small gentleman bought my crooked bar stool. What a good lad.', 'Karen', 'John');
-
+INSERT INTO Feedback (rating, comment, sender, receiver) VALUES
+-- Red Bar Stool
+(1, 'Karen sold me a wobbly chair, I am furious.', 'John', 'Karen'),
+(10, 'The small gentleman bought my crooked bar stool. What a good lad.', 'Karen', 'John'),
+-- Tuba
+(8, 'Dwight said there is no way that this tuba is from the titanic. I do not belive him, so I took out a loan to pay for it.', 'Michael', 'Alfie'),
+(9, 'Bloke paid a fair amount for some gold plated sheets of metal', 'Alfie', 'Michael');
 
 INSERT INTO Payment VALUES
-(42, '2020-01-02 13:02:22', 'Credit Card', 'John', 3);
-
-
-
-SELECT NEXTVAL('item_sequence', 50);
-SELECT NEXTVAL('bid_sequence', 50);
-SELECT NEXTVAL('feedback_sequence', 50);
+-- Red Bar Stool
+(19, '2020-01-02 13:02:22', 'Credit Card', 'John', 1),
+-- Tuba
+(1000004, '2021-11-03 12:01:42', 'Cash', 'Michael', 2);

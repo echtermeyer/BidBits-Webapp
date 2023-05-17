@@ -2,10 +2,7 @@ from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 
-from backend.create import get_categories
-
-
-def create_bid_layout():
+def create_bid_layout(fn_get_categories):
     return html.Div(style={"height": "100vh", "background": "linear-gradient(to right, yellow, orange)", "overflow": "auto"}, children=[
         html.Div([
             dcc.Link(
@@ -31,7 +28,7 @@ def create_bid_layout():
             dbc.Row([
                 dbc.Col([
                     dbc.Label("Category"),
-                    dbc.Select(id="item-category", options=[{'label': category, 'value': category} for category in get_categories()]),
+                    dbc.Select(id="item-category", options=[{'label': category, 'value': category} for category in fn_get_categories()]),
                 ]),
             ], style={'margin-bottom': '1rem'}),
             dbc.Row([
