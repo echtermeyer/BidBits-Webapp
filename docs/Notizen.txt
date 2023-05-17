@@ -15,14 +15,13 @@ Eine Stored Procedure process_payment, die immer dann getriggered wird wenn eine
 ----
 DONE
 won_auction -> jetzt auch eigene verkäufe
-Fehler beim anlegen eines items (item_id duplicate, error meldung als comment über method) --> müsste fixed sein durch den Einsatz von SEQUENCES statt SERIAL KEYS. Muss aber noch testen.
-
+Fehler beim anlegen eines items (item_id duplicate, error meldung als comment über method) 
+Mehr Beispiele dumpen
+feedback methode
+payment insert -> database manager --> TESTEN
 
 TODO
-Mehr Beispiele dumpen
 Stored procedure -> wenn user angelegt wird , items auf die watchlist
-feedback methode
-payment insert -> database manager
 
 -----------
 

@@ -34,11 +34,41 @@ class Database:
         self.__conn.close()
 
     def __connection_manager(func):
-        """Decorator function that takes car of everything concerning the database connection"""
+        """
+        Decorator function that handles database connection using psycopg2. 
+        It also checks if an auction has ended. If thats the case: document payment. 
+        """
 
         def wrapper(self, *args, **kwargs):
             try:
                 self.__connect()
+                # Check if an auction has endet with a bid that does not has a payment yet
+                self.__cur.execute(
+                    f"""
+                    SELECT 
+                        highest_bid AS amount, 
+                        item.endtime AS date,
+                        CASE FLOOR(RANDOM() * 3)
+                            WHEN 0 THEN 'cash'
+                            WHEN 1 THEN 'credit card'
+                            WHEN 2 THEN 'paypal'
+                        END AS type,	
+                        items_status.highest_bidder AS user_username,
+                        items_status.item_id
+                        
+                    FROM items_status
+                    LEFT JOIN payment ON items_status.item_id = payment.item_id
+                    JOIN item ON items_status.item_id = item.id
+                    WHERE time_left < 0 AND payment.amount IS NULL AND highest_bid > 0
+                    """
+                )
+                # Document Payment for all auctions that ran out
+                for auction in self.__fetch_data_from_cursor():
+                    self.__cur.execute(
+                    f"""INSERT INTO payment VALUES ({auction["amount"]}, {auction["date"]}, {auction["type"]}, {auction["user_username"]}, {auction["item_id"]})"""
+                    )
+
+                # Execute db query
                 result = func(self, *args, **kwargs)
                 self.__disconnect()
                 return (True, "success") if result is None else result
@@ -115,7 +145,7 @@ class Database:
         category_id, = self.__cur.fetchall()[0]
         self.__cur.execute(
             f"INSERT INTO Item (name, description, startingPrice, startTime, endTime, imageUrl, user_username, category_id) VALUES\
-            ('{title}', '{description}', '{start_price}', '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', '{(datetime.now() + timedelta(days=auction_duration)).strftime('%Y-%m-%d %H:%M:%S')}', '{image.rsplit('/', 1)[-1]}', '{self.__current_user}', '{category_id}')"
+            ('{title}', '{description}', '{start_price}', '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', '{(datetime.now() + timedelta(days=auction_duration)).strftime('%Y-%m-%d %H:%M:%S')}', '{image.name}', '{self.__current_user}', '{category_id}')"
         )
 
     @__connection_manager
@@ -139,6 +169,24 @@ class Database:
         self.__cur.execute(
             f"INSERT INTO bid (amount, bidtime, user_username, item_id) VALUES\
             ('{amount}', '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', '{self.__current_user}', '{item_id}')"
+        )
+
+    @__connection_manager
+    def give_feedback(self, item_id, rating, comment):
+        self.__cur.execute(
+            f"""
+                SELECT 
+                    CASE 
+                        WHEN buyer = {self.__current_user} THEN seller
+                        ELSE buyer
+                    END receiver
+                FROM items_status 
+                WHERE item_id = {item_id};
+            """
+        )
+        receiver = self.__fetch_data_from_cursor()[0]["receiver"]
+        self.__cur.execute(
+            f"INSERT INTO feedback (rating, comment, sender, receiver) VALUES ({rating}, '{comment}', {self.__current_user}, {receiver})"
         )
 
     @__connection_manager
