@@ -1,16 +1,7 @@
 # TODOs
 
 ## Backend
-Delete funktion für user -> daten löschen und ausloggen
-
-
 Eine Stored Procedure process_payment, die immer dann getriggered wird wenn eine Auktion ausläuft und daraufhin einen Eintrag in der Tabelle payment macht.
-
-
-## Fontend
-Einbinden der Backend Funktionen
-Userstats unter User anzeigen
-Bilder über Internet-URLs anzeigen
 
 
 # Fragen an Dozent
@@ -21,7 +12,29 @@ Bilder über Internet-URLs anzeigen
 - Wenn's nach dem Pullen beim Ausführen des Scripts einen Error gibt, erstmal den Port in der config Datei auf 5432 ändern. Angleichung des Ports in pgAdmin hat nicht funktioniert.
 
 
-# Von Eric:
-- image pfade überarbeiten
-- "date" key fehlt bei "Feedback"
-- "title" key fehlt bei "Payment"
+----
+DONE
+won_auction -> jetzt auch eigene verkäufe
+Fehler beim anlegen eines items (item_id duplicate, error meldung als comment über method) --> müsste fixed sein durch den Einsatz von SEQUENCES statt SERIAL KEYS. Muss aber noch testen.
+
+
+TODO
+Mehr Beispiele dumpen
+Stored procedure -> wenn user angelegt wird , items auf die watchlist
+feedback methode
+payment insert -> database manager
+
+-----------
+
+Gemeinsame Doku
+
+3.1. NFs mit ChatGPT
+
+3.5. Document queries mit ChatGPT
+
+3.6. Index (erstmal warten bis er es uns erklärt)
+
+------------
+
+NOchmal checken ob ERD-Diagram == DDL 
+

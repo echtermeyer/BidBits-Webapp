@@ -25,9 +25,12 @@ CREATE TABLE "user" (
     phone VARCHAR(20) NOT NULL UNIQUE
 );
 
+-- We chose to use SEQUENCES over SERIAL KEYS in order to populate the database with coherent example data
+CREATE SEQUENCE item_sequence;
+
 -- Create Item table
 CREATE TABLE Item (
-    id SERIAL KEY PRIMARY KEY,
+    id INTEGER DEFAULT nextval('item_sequence') KEY PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     description TEXT NOT NULL,
     startingPrice NUMERIC DEFAULT 0,
@@ -39,9 +42,11 @@ CREATE TABLE Item (
     category_id INTEGER REFERENCES Categorisation(id) 
 );
 
+CREATE SEQUENCE bid_sequence;
+
 -- Create Bid table
 CREATE TABLE Bid (
-    id SERIAL PRIMARY KEY,
+    id INTEGER DEFAULT nextval('bid_sequence') PRIMARY KEY,
     amount NUMERIC NOT NULL,
     bidTime TIMESTAMP NOT NULL,
     user_username VARCHAR(50) REFERENCES "user"(username) 
@@ -57,9 +62,11 @@ CREATE TABLE Watchlist (
     CONSTRAINT unique_watchlist_entry UNIQUE (user_username, item_id)
 );
 
+CREATE SEQUENCE feedback_sequence;
+
 -- Create Feedback table
 CREATE TABLE Feedback (
-    feedbackID SERIAL PRIMARY KEY,
+    feedbackID INTEGER DEFAULT nextval('feedback_sequence') PRIMARY KEY,
     rating INTEGER NOT NULL CHECK (rating BETWEEN 0 AND 10),
     comment TEXT,
     sender VARCHAR(50) REFERENCES "user"(username) 
@@ -145,11 +152,11 @@ INSERT INTO Categorisation VALUES
 (3, 'Antiquities', 'Boring old stuff'),
 (4, 'Antiquities', 'Cool old stuff');
 
+
 INSERT INTO "user" (username, email, password, firstName, lastName, address, phone) VALUES
 ('Karen', 'karen@astrology.com', 'godblessamerica', 'Karen', 'Nonyabis', '68161 Mannheim A1 14', '015789445571'),
 ('Alfie', 'alfie@burminghambakery.com', 'nevergivepowertothebigman', 'Alfonso', 'Solomons', '24220 Burmingham Kensington Road 11', '01578331212'),
 ('John', 'John.watson@gmail.com', 'thegameisafoot', 'John', 'Watson', '27615 London Baker Street 221b', '02295001922');
-
 
 
 INSERT INTO Item VALUES
@@ -176,6 +183,11 @@ INSERT INTO Feedback VALUES
 (2, 10, 'The small gentleman bought my crooked bar stool. What a good lad.', 'Karen', 'John');
 
 
-
 INSERT INTO Payment VALUES
 (42, '2020-01-02 13:02:22', 'Credit Card', 'John', 3);
+
+
+
+SELECT NEXTVAL('item_sequence', 50);
+SELECT NEXTVAL('bid_sequence', 50);
+SELECT NEXTVAL('feedback_sequence', 50);
