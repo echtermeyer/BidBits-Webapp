@@ -19,8 +19,6 @@ Fehler beim anlegen eines items (item_id duplicate, error meldung als comment ü
 Mehr Beispiele dumpen
 feedback methode
 payment insert -> database manager --> TESTEN
-
-TODO
 Stored procedure -> wenn user angelegt wird , items auf die watchlist
 
 -----------

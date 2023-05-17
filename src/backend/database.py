@@ -280,8 +280,7 @@ class Database:
 				WHEN seller = '{self.__current_user}' THEN 'seller'
 			END AS role
 		FROM items_status 
-		WHERE time_left < 0
-		AND highest_bidder = '{self.__current_user}' OR seller = '{self.__current_user}';
+		WHERE time_left <= 0 AND (highest_bidder = '{self.__current_user}' OR seller = '{self.__current_user}');
         """)
 
         return self.__fetch_data_from_cursor()
