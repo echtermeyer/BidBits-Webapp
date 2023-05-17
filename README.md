@@ -11,7 +11,7 @@ General steps you have to follow in order to use this repository:
 Start the application using:
 
 - `docker-compose build`
-- `docker-compse up`
+- `docker-compose up`
 
 To clean everything (including volumes):
 

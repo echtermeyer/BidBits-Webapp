@@ -88,14 +88,14 @@ CREATE VIEW items_status AS
 		item.description, 
 		item.imageUrl AS image_path,  
 		EXTRACT(DAY FROM AGE(item.endtime, CURRENT_TIMESTAMP)) AS time_left,
-		max_bids.highest_bid,
-		bid.user_username AS highest_bidder,
+		COALESCE(max_bids.highest_bid, 0) AS highest_bid,
+		COALESCE(bid.user_username, 'No bids yet') AS highest_bidder,
 		item.user_username AS seller
 		
 	FROM item 
-	JOIN (SELECT item_id, MAX(amount) AS highest_bid FROM bid GROUP BY item_id) AS max_bids 
+	LEFT JOIN (SELECT item_id, MAX(amount) AS highest_bid FROM bid GROUP BY item_id) AS max_bids 
 		ON item.id = max_bids.item_id
-	JOIN bid
+	LEFT JOIN bid
 		ON bid.item_id = max_bids.item_id
 		AND bid.amount = max_bids.highest_bid;
 
@@ -203,8 +203,8 @@ INSERT INTO Feedback (rating, comment, sender, receiver) VALUES
 (1, 'Karen sold me a wobbly chair, I am furious.', 'John', 'Karen'),
 (10, 'The small gentleman bought my crooked bar stool. What a good lad.', 'Karen', 'John'),
 -- Tuba
-(8, 'Dwight said there is no way that this tuba is from the titanic. I do not belive him, so I took out a loan to pay for it.', 'Michael', 'Alfie'),
-(9, 'Bloke paid a fair amount for some gold plated sheets of metal', 'Alfie', 'Michael');
+(8, 'I thank Alfie for his generous offer. Dwight said there is no way that this tuba is from the titanic, but I do not belive him.', 'Michael', 'Alfie'),
+(9, 'It was a pleasure dealing with Michael. The bloke paid a fair amount for some gold plated sheets of metal.', 'Alfie', 'Michael');
 
 INSERT INTO Payment VALUES
 -- Red Bar Stool

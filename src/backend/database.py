@@ -109,12 +109,13 @@ class Database:
     # TODO: Error: Database error. Check Data Types.duplicate key value violates unique constraint "item_pkey" DETAIL: Key (id)=(1) already exists.
     @__connection_manager
     def create_item(self, title, description, category, start_price, auction_duration, image):
+
         self.__cur.execute(
             f"SELECT id from categorisation WHERE category = '{category.split(' - ')[0]}' AND subcategory = '{category.split(' - ')[1]}'")
         category_id, = self.__cur.fetchall()[0]
         self.__cur.execute(
             f"INSERT INTO Item (name, description, startingPrice, startTime, endTime, imageUrl, user_username, category_id) VALUES\
-            ('{title}', '{description}', '{start_price}', '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', '{(datetime.now() + timedelta(days=auction_duration)).strftime('%Y-%m-%d %H:%M:%S')}', '{image}', '{self.__current_user}', '{category_id}')"
+            ('{title}', '{description}', '{start_price}', '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', '{(datetime.now() + timedelta(days=auction_duration)).strftime('%Y-%m-%d %H:%M:%S')}', '{image.rsplit('/', 1)[-1]}', '{self.__current_user}', '{category_id}')"
         )
 
     @__connection_manager
