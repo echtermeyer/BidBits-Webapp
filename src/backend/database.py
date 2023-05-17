@@ -49,9 +49,9 @@ class Database:
                         highest_bid AS amount, 
                         item.endtime AS date,
                         CASE FLOOR(RANDOM() * 3)
-                            WHEN 0 THEN 'cash'
-                            WHEN 1 THEN 'credit card'
-                            WHEN 2 THEN 'paypal'
+                            WHEN 0 THEN 'Cash'
+                            WHEN 1 THEN 'Credit Card'
+                            WHEN 2 THEN 'Paypal'
                         END AS type,	
                         items_status.highest_bidder AS user_username,
                         items_status.item_id
@@ -59,13 +59,14 @@ class Database:
                     FROM items_status
                     LEFT JOIN payment ON items_status.item_id = payment.item_id
                     JOIN item ON items_status.item_id = item.id
-                    WHERE time_left < 0 AND payment.amount IS NULL AND highest_bid > 0
+                    WHERE time_left <= 0 AND payment.amount IS NULL AND highest_bid > 0
                     """
                 )
                 # Document Payment for all auctions that ran out
                 for auction in self.__fetch_data_from_cursor():
+                    print(auction)
                     self.__cur.execute(
-                    f"""INSERT INTO payment VALUES ({auction["amount"]}, {auction["date"]}, {auction["type"]}, {auction["user_username"]}, {auction["item_id"]})"""
+                    f"""INSERT INTO payment VALUES ({auction["amount"]}, '{auction["date"]}', '{auction["type"]}', '{auction["user_username"]}', {auction["item_id"]})"""
                     )
 
                 # Execute db query
@@ -139,7 +140,9 @@ class Database:
     # TODO: Error: Database error. Check Data Types.duplicate key value violates unique constraint "item_pkey" DETAIL: Key (id)=(1) already exists.
     @__connection_manager
     def create_item(self, title, description, category, start_price, auction_duration, image):
-
+        if auction_duration <= 1:
+            return (False, "Minimum auction duration is 2 days")
+        
         self.__cur.execute(
             f"SELECT id from categorisation WHERE category = '{category.split(' - ')[0]}' AND subcategory = '{category.split(' - ')[1]}'")
         category_id, = self.__cur.fetchall()[0]

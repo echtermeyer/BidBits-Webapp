@@ -140,7 +140,6 @@ CREATE MATERIALIZED VIEW user_statistics AS
 
 
 
-
 INSERT INTO Categorisation VALUES
 (1, 'Animals', 'Mammals'),
 (2, 'Animals', 'Amphibians'),
@@ -211,3 +210,34 @@ INSERT INTO Payment VALUES
 (19, '2020-01-02 13:02:22', 'Credit Card', 'John', 1),
 -- Tuba
 (1000004, '2021-11-03 12:01:42', 'Cash', 'Michael', 2);
+
+
+
+
+
+CREATE OR REPLACE FUNCTION add_random_item_to_watchlist()
+RETURNS TRIGGER AS $$
+DECLARE
+    random_item_id INTEGER;
+BEGIN
+	-- Get the id of a random item which is currently on auction
+    SELECT item_id
+    FROM items_status
+	WHERE time_left > 0
+    ORDER BY RANDOM()
+    LIMIT 1
+    INTO random_item_id;
+	
+    -- Put that item on the watchlist of the newly created user
+    INSERT INTO watchlist (user_username, item_id)
+    VALUES (NEW.username, random_item_id);
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger that executes the stored procedure whenever a new entry is added to the user table
+CREATE TRIGGER user_created_trigger
+AFTER INSERT ON "user"
+FOR EACH ROW
+EXECUTE FUNCTION add_random_item_to_watchlist();
