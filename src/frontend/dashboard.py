@@ -36,6 +36,8 @@ def generate_items(items):
                     html.H4(item["title"], className="card-title", id={'type': 'title-text', 'index': i}),
                     html.H6(f"Item Code: #{item['item_id']}", className="card-text"),
                     html.P(item["description"], className="card-text"),
+                    html.H6(f"Seller: {item['seller']}", className="card-text"),
+                    html.H6(f"Highest Bidder: {item['highest_bidder']}", className="card-text"),
                     html.H6(f"Highest Bid: ${item['highest_bid']}", className="card-text"),
                     html.H6(f"Time left: {item['time_left']} days", className="card-text"),
                     dbc.InputGroup(

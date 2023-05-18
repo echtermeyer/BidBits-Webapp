@@ -284,5 +284,18 @@ def on_button_click(n, title, description, category, start_price, auction_durati
         return dbc.Alert(message, color="danger")
 
 
+@app.callback(
+    Output({'type': 'dynamic-button', 'index': 'delete-user-submit'}, 'children'),
+    Input({'type': 'dynamic-button', 'index': 'delete-user-submit'}, 'n_clicks')
+)
+def button_clicked(n_clicks):
+    if n_clicks is None:
+        raise PreventUpdate
+
+    db.delete_userdata()
+        
+    return "Button clicked {} times".format(n_clicks)
+    
+
 if __name__ == "__main__":
     app.run_server(debug=True, host='0.0.0.0', port=8051)

@@ -162,6 +162,15 @@ def personal_data_layout(fn_get_user_information):
                         style={"font-family": "Roboto",
                                "width": "100%", "margin-top": "1rem"}
                     ),
+
+                    dbc.Button(
+                        "Delete User",
+                        id={"type": "dynamic-button", "index": "delete-user-submit"},
+                        color="danger",
+                        style={"font-family": "Roboto",
+                               "width": "100%", "margin-top": "1rem"}
+                    ),
+
                     html.Div(id='update-message',
                              style={"text-align": "center", "margin-top": "1rem"})
                 ]
