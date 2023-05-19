@@ -1,4 +1,7 @@
 # TODOs
+- mehr Sachen in der db
+- Ranking ist 1-5, nicht 1-10
+- password hashes
 
 ## Backend
 Eine Stored Procedure process_payment, die immer dann getriggered wird wenn eine Auktion ausläuft und daraufhin einen Eintrag in der Tabelle payment macht.

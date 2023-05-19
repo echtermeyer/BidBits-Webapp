@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import datetime
 
 from pathlib import Path
@@ -15,6 +16,9 @@ from frontend.dashboard import dashboard_layout
 from frontend.user import user_layout
 from frontend.create import create_bid_layout
 
+from frontend.dashboard import generate_items
+from frontend.user import personal_data_layout, won_auctions_layout, feedback_layout, payments_layout
+
 from backend.database import Database
 
 file_path = Path(__file__)
@@ -30,7 +34,7 @@ app.layout = serve_layout
     Output('page-content', 'children'),
     Input('url', 'pathname')
 )
-def display_page(pathname):
+def navigation(pathname):
     if pathname == '/' or pathname is None:
         return home_layout()
     elif pathname == '/dashboard':
@@ -70,9 +74,10 @@ def display_page(pathname):
      State("register-confirm-password", "value"),
      State('error-modal', 'is_open')]
 )
-def navigate_to_dashboard(login_clicks, register_clicks, close_clicks, login_username, login_password, register_username, register_email, register_firstname, register_lastname, register_address, register_phone, register_password, register_confirm_password, is_open):
+def login_register(login_clicks, register_clicks, close_clicks, login_username, login_password, register_username, register_email, register_firstname, register_lastname, register_address, register_phone, register_password, register_confirm_password, is_open):
     ctx = dash.callback_context
     triggered_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    hash_object = hashlib.sha256()
 
     if triggered_id == 'login-submit':
         if login_clicks:
@@ -108,44 +113,53 @@ def navigate_to_dashboard(login_clicks, register_clicks, close_clicks, login_use
 
 
 @app.callback(
-    [Output("all-bids", "style"),
-     Output("watchlist", "style"),
-     Output("user", "style"),
-     Output("create-item", "style"),
-     Output("all-bids-content", "style"),
-     Output("watchlist-content", "style")],
-    [Input("all-bids", "n_clicks_timestamp"),
-     Input("watchlist", "n_clicks_timestamp"),
-     Input("user", "n_clicks_timestamp"),
-     Input("create-item", "n_clicks_timestamp")],
-    [State("all-bids", "n_clicks"),
-     State("watchlist", "n_clicks"),
-     State("user", "n_clicks"),
-     State("create-item", "n_clicks")],
+    [
+        Output("all-bids-content", "children"),
+        Output("watchlist-content", "children"),
+        Output("all-bids-content", "style"),
+        Output("watchlist-content", "style"),
+        Output("all-bids", "style"),
+        Output("watchlist", "style"),
+        Output("user", "style"),
+        Output("create-item", "style"),
+    ],
+    [
+        Input("all-bids", "n_clicks_timestamp"),
+        Input("watchlist", "n_clicks_timestamp"),
+        Input("user", "n_clicks_timestamp"),
+        Input("create-item", "n_clicks_timestamp"),
+    ],
+    [
+        State("all-bids", "n_clicks"),
+        State("watchlist", "n_clicks"),
+        State("user", "n_clicks"),
+        State("create-item", "n_clicks"),
+    ],
     prevent_initial_call=True
 )
-def switch_tab(n1, n2, n3, n4, clicks1, clicks2, clicks3, clicks4):
+def dashboard_switch_tabs(n1, n2, n3, n4, clicks1, clicks2, clicks3, clicks4):
     ctx = dash.callback_context
-
-    if not ctx.triggered:
-        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, {"display": "block"}, {"display": "none"}
-    else:
-        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
     base_style = {"border": "none", "background": "none",
                   "outline": "none", "box-shadow": "none", "color": "black"}
     active_style = {**base_style, "text-decoration": "underline"}
 
-    if button_id == "all-bids" and (clicks1 is None or clicks1 >= clicks2):
-        return active_style, base_style, base_style, base_style, {"display": "block"}, {"display": "none"}
-    elif button_id == "watchlist" and (clicks2 is None or clicks2 > clicks1):
-        return base_style, active_style, base_style, base_style, {"display": "none"}, {"display": "block"}
-    elif button_id == "user":
-        return base_style, base_style, active_style, base_style, {"display": "none"}, {"display": "none"}
-    elif button_id == "create-item":
-        return base_style, base_style, base_style, active_style, {"display": "none"}, {"display": "none"}
+    if not ctx.triggered:
+        return generate_items(db.get_active_items()), html.Div(), {"display": "block"}, {"display": "none"}, active_style, base_style, base_style, base_style
     else:
-        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, {"display": "block"}, {"display": "none"}
+        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if button_id == "all-bids" and (clicks1 is None or clicks1 >= clicks2):
+        return generate_items(db.get_active_items()), html.Div(), {"display": "block"}, {"display": "none"}, active_style, base_style, base_style, base_style
+    elif button_id == "watchlist" and (clicks2 is None or clicks2 > clicks1):
+        return html.Div(), generate_items(db.get_watchlist_items()), {"display": "none"}, {"display": "block"}, base_style, active_style, base_style, base_style
+    elif button_id == "user":
+        return html.Div(), html.Div(), {"display": "none"}, {"display": "none"}, base_style, base_style, active_style, base_style
+    elif button_id == "create-item":
+        return html.Div(), html.Div(), {"display": "none"}, {"display": "none"}, base_style, base_style, base_style, active_style
+    else:
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
+
 
 
 @app.callback(
@@ -178,7 +192,7 @@ def update_watchlist(n_clicks, current_state, item_id):
      State({'type': 'bid-input', 'index': MATCH}, 'value')],  # get bid amount from input field
     prevent_initial_call=True,
 )
-def on_confirm_bid(n_clicks, title, item_id, bid_amount):
+def place_bid(n_clicks, title, item_id, bid_amount):
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
@@ -187,10 +201,14 @@ def on_confirm_bid(n_clicks, title, item_id, bid_amount):
         return True, False
     else:
         raise dash.exceptions.PreventUpdate()
-
+    
 
 @app.callback(
     [
+        Output("personal-data-content", "children"),
+        Output("won-auctions-content", "children"),
+        Output("feedback-content", "children"),
+        Output("payments-content", "children"),
         Output("personal-data-content", "style"),
         Output("won-auctions-content", "style"),
         Output("feedback-content", "style"),
@@ -200,23 +218,23 @@ def on_confirm_bid(n_clicks, title, item_id, bid_amount):
         Input("personal-data", "n_clicks"),
         Input("won-auctions", "n_clicks"),
         Input("feedback", "n_clicks"),
-        Input("payments", "n_clicks")
+        Input("payments", "n_clicks"),
     ]
 )
-def update_content_visibility(personal_data_clicks, won_auctions_clicks, feedback_clicks, payments_clicks):
+def user_switch_Tabs(personal_data_clicks, won_auctions_clicks, feedback_clicks, payments_clicks):
     ctx = dash.callback_context
     button_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    if button_id == "personal-data":
-        return {"display": "block"}, {"display": "none"}, {"display": "none"}, {"display": "none"}
-    elif button_id == "won-auctions":
-        return {"display": "none"}, {"display": "block"}, {"display": "none"}, {"display": "none"}
-    elif button_id == "feedback":
-        return {"display": "none"}, {"display": "none"}, {"display": "block"}, {"display": "none"}
-    elif button_id == "payments":
-        return {"display": "none"}, {"display": "none"}, {"display": "none"}, {"display": "block"}
+    if button_id == "personal-data" or button_id == 'interval-component':
+        return personal_data_layout(db.get_personal_data), None, None, None, {"display": "block"}, {"display": "none"}, {"display": "none"}, {"display": "none"}
+    elif button_id == "won-auctions" or button_id == 'interval-component':
+        return None, won_auctions_layout(db.get_my_auctions, db.get_user_stats()[0]), None, None, {"display": "none"}, {"display": "block"}, {"display": "none"}, {"display": "none"}
+    elif button_id == "feedback" or button_id == 'interval-component':
+        return None, None, feedback_layout(db.get_feedback, db.get_user_stats()[0]), None, {"display": "none"}, {"display": "none"}, {"display": "block"}, {"display": "none"}
+    elif button_id == "payments" or button_id == 'interval-component':
+        return None, None, None, payments_layout(db.get_payments, db.get_user_stats()[0]), {"display": "none"}, {"display": "none"}, {"display": "none"}, {"display": "block"}
     else:
-        return {"display": "block"}, {"display": "none"}, {"display": "none"}, {"display": "none"}
+        return personal_data_layout(db.get_personal_data), None, None, None, {"display": "block"}, {"display": "none"}, {"display": "none"}, {"display": "none"}
 
 
 @app.callback(
@@ -228,7 +246,7 @@ def update_content_visibility(personal_data_clicks, won_auctions_clicks, feedbac
      State('update-address', 'value'),
      State('update-phone', 'value')]
 )
-def update_user(n, email, firstname, lastname, address, phone):
+def update_user_information(n, email, firstname, lastname, address, phone):
     if n is None or n == 0:
         raise dash.exceptions.PreventUpdate()
 
@@ -243,7 +261,7 @@ def update_user(n, email, firstname, lastname, address, phone):
 
 @app.callback(Output('uploaded-file-name', 'children'),
               Input('item-image', 'filename'))
-def update_uploaded_file_name(list_of_names):
+def upload_file(list_of_names):
     if list_of_names is not None:
         return html.P(f"Uploaded file: {list_of_names}")
     else:
@@ -260,7 +278,7 @@ def update_uploaded_file_name(list_of_names):
      State('item-auction-duration', 'value'),
      State('item-image', 'contents')]
 )
-def on_button_click(n, title, description, category, start_price, auction_duration, image_data):
+def list_item_for_auction(n, title, description, category, start_price, auction_duration, image_data):
     if n is None:
         return dash.no_update
 
@@ -288,14 +306,33 @@ def on_button_click(n, title, description, category, start_price, auction_durati
     Output({'type': 'dynamic-button', 'index': 'delete-user-submit'}, 'children'),
     Input({'type': 'dynamic-button', 'index': 'delete-user-submit'}, 'n_clicks')
 )
-def button_clicked(n_clicks):
+def delete_user(n_clicks):
     if n_clicks is None:
         raise PreventUpdate
 
     db.delete_userdata()
-        
+
     return "Button clicked {} times".format(n_clicks)
+
+
+@app.callback(
+    [Output({"type": "feedback-input", "index": MATCH}, "value"),
+     Output({"type": "feedback-success", "index": MATCH}, "children")],
+    Input({"type": "submit-button", "index": MATCH}, "n_clicks"),
+    [State({"type": "feedback-input", "index": MATCH}, "value"),
+     State({"type": "rating-slider", "index": MATCH}, "value"),
+     State({"type": "item-id", "index": MATCH}, "children")],
+)
+def give_feedback(n_clicks, feedback, rating, item_id):
+    if n_clicks is None:
+        raise PreventUpdate
     
+    item_id = item_id.split('#')[1]
+    db.give_feedback(item_id, rating, feedback)
+        
+    return "", html.Span("Feedback sent!", style={"color": "green"})
+
+
 
 if __name__ == "__main__":
     app.run_server(debug=True, host='0.0.0.0', port=8051)

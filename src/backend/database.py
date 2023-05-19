@@ -127,6 +127,7 @@ class Database:
         self.__cur.execute(
             f"INSERT INTO \"user\" (username, email, password, firstName, lastName, address, phone) VALUES\
             ('{username}', '{email}', '{password}', '{first_name}', '{last_name}', '{address}', '{phone}')")
+        self.__current_user = username
 
     @__connection_manager
     def login(self, username, password):
@@ -180,16 +181,16 @@ class Database:
             f"""
                 SELECT 
                     CASE 
-                        WHEN buyer = {self.__current_user} THEN seller
-                        ELSE buyer
+                        WHEN highest_bidder = '{self.__current_user}' THEN seller
+                        ELSE highest_bidder
                     END receiver
                 FROM items_status 
-                WHERE item_id = {item_id};
+                WHERE item_id = '{item_id}';
             """
         )
         receiver = self.__fetch_data_from_cursor()[0]["receiver"]
         self.__cur.execute(
-            f"INSERT INTO feedback (rating, comment, sender, receiver) VALUES ({rating}, '{comment}', {self.__current_user}, {receiver})"
+            f"INSERT INTO feedback (rating, comment, sender, receiver) VALUES ({rating}, '{comment}', '{self.__current_user}', '{receiver}')"
         )
 
     @__connection_manager

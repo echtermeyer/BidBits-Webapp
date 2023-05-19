@@ -10,17 +10,6 @@ def user_layout(
         fn_get_won_auctions_information,
         stats
 ):
-    print("User Stats:")
-    print(stats)
-    print("User Information:")
-    print(fn_get_user_information())
-    print("Feedback Information:")
-    print(fn_get_feedback_information())
-    print("Auctions Information:")
-    print(fn_get_won_auctions_information())
-    print("Payment Information")
-    print(fn_get_payment_information())
-
     return html.Div(style={"height": "100vh", "background": "linear-gradient(to right, yellow, orange)", "overflow": "auto"}, children=[
         html.Div([
             dcc.Link(
@@ -166,6 +155,7 @@ def personal_data_layout(fn_get_user_information):
                     dbc.Button(
                         "Delete User",
                         id={"type": "dynamic-button", "index": "delete-user-submit"},
+                        href="/",
                         color="danger",
                         style={"font-family": "Roboto",
                                "width": "100%", "margin-top": "1rem"}
@@ -189,22 +179,43 @@ def won_auctions_layout(get_won_auctions_information, stats):
 
     for i, auction in enumerate(get_won_auctions_information()):
         item = dbc.Card([
-            dbc.Row([
-                dbc.Col(dbc.CardImg(
-                    src=f"/assets/{auction['image_path']}", top=True), width=6),
-                dbc.Col(dbc.CardBody([
-                    html.H4(auction['title'], className="card-title",
-                            id={'type': 'title-text', 'index': i}),
-                    html.H6(
-                        f"Role: {auction['role'].capitalize()}", className="card-text"),
-                    html.H6(
-                        f"Amount: ${auction['amount']:.2f}", className="card-text"),
-                    html.H6(
-                        f"Item Code: #{auction['item_id']}", className="card-text"),
-                    html.P(auction['description'], className="card-text"),
-                ], className="d-flex flex-column"), width=6)
-            ])
-        ], style={"width": "50%", "margin": "1rem auto"})
+        dbc.Row([
+            dbc.Col(dbc.CardImg(
+                src=f"/assets/{auction['image_path']}", top=True), width=6),
+            dbc.Col(dbc.CardBody([
+                html.H4(auction['title'], className="card-title",
+                        id={'type': 'title-text', 'index': i}),
+                html.P(auction['description'], className="card-text"),
+                html.H6(
+                    f"Role: {auction['role'].capitalize()}", className="card-text"),
+                html.H6(
+                    f"Amount: ${auction['amount']:.2f}", className="card-text"),
+                html.H6(
+                    f"Item Code: #{auction['item_id']}", className="card-text", id={'type': 'item-id', 'index': i}),
+                html.H6(
+                    f"Rate your experience:", className="card-text"
+                ),
+                dcc.Slider(
+                    id={'type': 'rating-slider', 'index': i},
+                    min=1,
+                    max=5,
+                    marks={i: str(i) for i in range(1, 6)},
+                    value=3,
+                ),
+                dbc.Input(
+                    id={"type": "feedback-input", "index": i}, 
+                    placeholder="Write your feedback here...",
+                    style={"height": "4rem", "text-align": "top"},
+                ),
+                dbc.Button(
+                    "Submit feedback",
+                    id={"type": "submit-button", "index": i},
+                    color="primary",
+                    style={"font-family": "Roboto", "width": "100%", "margin-top": "1rem"}
+                ),
+                html.Div(id={"type": "feedback-success", "index": i})
+            ], className="d-flex flex-column"), width=6)
+        ])], style={"width": "50%", "margin": "1rem auto"})
         elements.append(item)
 
     return html.Div(
