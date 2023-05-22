@@ -4,16 +4,16 @@ from dash import html
 
 def dashboard_layout(fn_get_all_items, fn_get_watchlist_items):
     return html.Div(style={"height": "100vh", "background": "linear-gradient(to right, yellow, orange)", "overflow": "auto"}, children=[
-        html.H1("Dashboard", style={"font-family": "Roboto", "text-align": "center", "font-size": "3rem", "font-weight": "bold", "margin-top": "3rem", "margin-bottom": "1rem", "color": "black"}),
+        html.H1("Dashboard", style={"fontFamily": "Roboto", "textAlign": "center", "fontSize": "3rem", "fontWeight": "bold", "marginTop": "3rem", "marginBottom": "1rem", "color": "black"}),
         
         html.Div([
-            dbc.Button("Create Item", id="create-item", href="/create", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "box-shadow": "none", "color": "black"}),
-            dbc.Button("All Listings", id="all-bids", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "box-shadow": "none", "color": "black"}),
-            dbc.Button("My Watchlist", id="watchlist", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "box-shadow": "none", "color": "black"}),
-            dbc.Button("User", id="user", href="/user", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "box-shadow": "none", "color": "black"}),
-        ], style={"text-align": "center", "margin-top": "3rem"}),
+            dbc.Button("Create Item", id="create-item", href="/create", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "boxShadow": "none", "color": "black"}),
+            dbc.Button("All Listings", id="all-bids", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "boxShadow": "none", "color": "black"}),
+            dbc.Button("My Watchlist", id="watchlist", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "boxShadow": "none", "color": "black"}),
+            dbc.Button("User", id="user", href="/user", className="mr-2", n_clicks=0, color="link", style={"border": "none", "background": "none", "outline": "none", "boxShadow": "none", "color": "black"}),
+        ], style={"textAlign": "center", "marginTop": "3rem"}),
 
-        html.Div(style={"height": "70vh", "overflow": "auto", "margin-top": "2rem"},
+        html.Div(style={"height": "70vh", "overflow": "auto", "marginTop": "2rem"},
                  children=[
                      html.Div(id="all-bids-content", children=generate_items(fn_get_all_items())),
                      html.Div(id="watchlist-content", children=generate_items(fn_get_watchlist_items()), style={'display': 'none'})
@@ -48,9 +48,9 @@ def generate_items(items):
                         ],
                         className="mt-3",
                     ),
-                    html.Div("You are the highest bidder", id={'type': 'bidder-text', 'index': i}, hidden=True, style={"color": "green", "margin-top": "1rem"}),
-                    dbc.Button(watchlist_text, id={'type': 'wishlist-button', 'index': i}, n_clicks=0, color="secondary", style={"margin-top": "2rem"}),
-                    html.Div(style={"flex-grow": "1"}),  # Spacer
+                    html.Div("You are the highest bidder", id={'type': 'bidder-text', 'index': i}, hidden=True, style={"color": "green", "marginTop": "1rem"}),
+                    dbc.Button(watchlist_text, id={'type': 'wishlist-button', 'index': i}, n_clicks=0, color="secondary", style={"marginTop": "2rem"}),
+                    html.Div(style={"flexGrow": "1"}),  # Spacer
                     # Hidden Div to hold the item_id
                     html.Div(item['item_id'], id={'type': 'item_id', 'index': i}, style={'display': 'none'})
                 ], className="d-flex flex-column"), width=6)

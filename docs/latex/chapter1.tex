@@ -78,11 +78,12 @@ The watchlist table allows users to track items they are interested in. It inclu
 	);
 \end{lstlisting}
 
-The feedback table facilitates users in leaving feedback about their transactions. It comprises 'feedbackID', a unique identifier for each feedback and the primary key for this table, 'rating', the rating given by the sender to the receiver on a scale from 0 to 10, 'comment', a text field for additional comments, 'sender' and 'receiver', the usernames of the user giving and receiving the feedback, both foreign keys referencing the user table.
+The feedback table facilitates users in leaving feedback about their transactions. It comprises 'feedbackID', a unique identifier for each feedback and the primary key for this table, 'item-id', the id of the item which was sold and to which the feedback is refering, 'rating', the rating given by the sender to the receiver on a scale from 0 to 10, 'comment', a text field for additional comments, 'sender' and 'receiver', the usernames of the user giving and receiving the feedback, both foreign keys referencing the user table.
 
 \begin{lstlisting}[style=sqlStyle]
 	CREATE TABLE Feedback (
 		feedbackID SERIAL PRIMARY KEY,
+		item_id INTEGER REFERENCES Item(id),
 		rating INTEGER NOT NULL CHECK (rating BETWEEN 0 AND 10),
 		comment TEXT,
 		sender VARCHAR(50) REFERENCES "user"(username)

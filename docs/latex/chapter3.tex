@@ -1,4 +1,85 @@
 % !TEX root =  master.tex
 
 \chapter{SQL Queries and Indices}
+The fields 'item\_id' and 'amount' where indexed in order to significantly improve the performance of queries that involve filtering, searching, or joining based on these columns. 
+
+\begin{lstlisting}[style=sqlStyle]
+	CREATE INDEX index_bid_item_id ON Bid (item_id);
+	CREATE INDEX index_bid_amount ON Bid (amount);
+\end{lstlisting}
+
+This increases efficiency considerably since those columns used to create the database view 'items\_status', which in turn is accessed in 5 separate queries, including those that are the used most frequently. In total our web application uses 22 separate queries which were implemented using psycopg2, 7 of which will be explained in this chapter.
+
+\begin{lstlisting}[style=sqlStyle]
+SELECT 
+	items_status.*,
+	CASE
+		WHEN filtered_watchlist.user_username is NUll THEN 0
+		ELSE 1
+	END as is_watchlist
+FROM items_status 
+	LEFT JOIN (
+		SELECT * FROM watchlist WHERE user_username = '{self.__current_user}'
+	) AS filtered_watchlist ON items_status.item_id = filtered_watchlist.item_id 
+WHERE items_status.time_left > 0;
+\end{lstlisting}
+
+This nested query retrieves active items from the items\_status view and adds an additional column that indicates whether the item is in the users watchlist or not.
+
+\begin{lstlisting}[style=sqlStyle]
+	REFRESH MATERIALIZED VIEW user_statistics;
+	SELECT * FROM user_statistics WHERE username = '{self.__current_user}';
+\end{lstlisting}
+This query refreshes the materialized view user\_statistics and retrieves statistics data such as the number of won auctions or the total income generated via sold items for the current user.
+
+\begin{lstlisting}[style=sqlStyle]
+SELECT DISTINCT
+	items_status.item_id, 
+	title, 
+	description, 
+	image_path, 
+	highest_bid AS amount, 
+	CASE 
+		WHEN highest_bidder = '{self.__current_user}' THEN 'buyer'
+		WHEN seller = '{self.__current_user}' THEN 'seller'
+	END AS role,
+	CASE 
+		WHEN feedback.rating IS NULL THEN 0
+		ELSE 1
+	END AS has_feedback
+FROM items_status 
+	LEFT JOIN feedback ON items_status.item_id = feedback.item_id
+WHERE time_left <= 0 AND (highest_bidder = '{self.__current_user}' OR seller = '{self.__current_user}');
+\end{lstlisting}
+This query retrieves the completed auctions in which the current user participated either as a buyer or a seller. It includes information such as item ID, title, description, image path, highest bid amount and the user's role. The field 'has\_feedback' contains the information wether the user already send feedback to the other user which won or sold the item. The frontend uses this information to either display or hide the possibility to give feedback.
+
+\begin{lstlisting}[style=sqlStyle]
+UPDATE \"user\" SET {filled_inputs} WHERE username = '{self.__current_user}';
+\end{lstlisting}
+This query updates the user's personal data in the user table. It takes the email, first name, last name, address, and phone as input values and updates the corresponding columns for the current user.
+
+\begin{lstlisting}[style=sqlStyle]
+DELETE FROM watchlist WHERE user_username = '{self.__current_user}' AND item_id = '{item_id}'
+\end{lstlisting}
+This query deletes the user's data from the user table. Other tables which reference the user table utilize 'ON DELETE SET NULL'. This way the statistics and auction histories of other users are not impaired once a user is deleted.
+
+\begin{lstlisting}[style=sqlStyle]
+SELECT 
+	highest_bid AS amount, 
+	item.endtime AS date,
+	CASE FLOOR(RANDOM() * 3)
+		WHEN 0 THEN 'Cash'
+		WHEN 1 THEN 'Credit Card'
+		WHEN 2 THEN 'Paypal'
+	END AS type,	
+	items_status.highest_bidder AS user_username,
+	items_status.item_id
+FROM items_status
+	LEFT JOIN payment ON items_status.item_id = payment.item_id
+	JOIN item ON items_status.item_id = item.id
+WHERE time_left <= 0 AND payment.amount IS NULL AND highest_bid > 0;
+
+INSERT INTO payment VALUES ({auction["amount"]}, '{auction["date"]}', '{auction["type"]}', '{auction["user_username"]}', {auction["item_id"]});
+\end{lstlisting}
+This query retrieves information about auctions that have ended but do not have a corresponding payment yet. It then chooses a payment type at random and inserts a corresponding entry in the 'payment' table. It was implemented for demonstration purposes and simulates a direct debit collection for an item whose auction has endet. Because the scope of this university project does not allow hosting a server which automatically executes this query at the very second that the auction has endet, we had to come up with a different solution. That's why this query is triggered each time any other query is executed. This way it is ensured that the user immediately sees updated informations (e.g. user statistics or payment info) once an auction has endet and he interacted with the website. Again this is just for demonstration purposes and we are well aware that this would not be a feasable solution in a real world scenario.
 

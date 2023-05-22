@@ -141,7 +141,7 @@ def dashboard_switch_tabs(n1, n2, n3, n4, clicks1, clicks2, clicks3, clicks4):
     ctx = dash.callback_context
 
     base_style = {"border": "none", "background": "none",
-                  "outline": "none", "box-shadow": "none", "color": "black"}
+                  "outline": "none", "boxShadow": "none", "color": "black"}
     active_style = {**base_style, "text-decoration": "underline"}
 
     if not ctx.triggered:

@@ -51,6 +51,9 @@ CREATE TABLE Bid (
     item_id INTEGER REFERENCES Item(id) 
 );
 
+CREATE INDEX index_bid_item_id ON Bid (item_id);
+CREATE INDEX index_bid_amount ON Bid (amount);
+
 -- Create Watchlist table
 CREATE TABLE Watchlist (
     user_username VARCHAR(50) REFERENCES "user"(username) 
@@ -62,6 +65,7 @@ CREATE TABLE Watchlist (
 -- Create Feedback table
 CREATE TABLE Feedback (
     feedbackID SERIAL PRIMARY KEY,
+    item_id INTEGER REFERENCES Item(id),
     rating INTEGER NOT NULL CHECK (rating BETWEEN 0 AND 10),
     comment TEXT,
     sender VARCHAR(50) REFERENCES "user"(username) 
@@ -88,12 +92,14 @@ CREATE VIEW items_status AS
 		item.description, 
 		item.imageUrl AS image_path,  
 		EXTRACT(DAY FROM AGE(item.endtime, CURRENT_TIMESTAMP)) AS time_left,
-		COALESCE(max_bids.highest_bid, 0) AS highest_bid,
+        CASE
+            WHEN COALESCE(max_bids.highest_bid, 0) > item.startingPrice THEN COALESCE(max_bids.highest_bid, 0)
+            ELSE item.startingPrice
+        END as highest_bid,
 		COALESCE(bid.user_username, 'No bids yet') AS highest_bidder,
 		item.user_username AS seller
-		
 	FROM item 
-	LEFT JOIN (SELECT item_id, MAX(amount) AS highest_bid FROM bid GROUP BY item_id) AS max_bids 
+	LEFT JOIN (SELECT item_id, MAX(amount) AS highest_bid FROM bid GROUP BY item_id) AS max_bids
 		ON item.id = max_bids.item_id
 	LEFT JOIN bid
 		ON bid.item_id = max_bids.item_id
@@ -197,13 +203,13 @@ INSERT INTO Watchlist VALUES
 ('Michael', 5),
 ('Alfie', 5);
 
-INSERT INTO Feedback (rating, comment, sender, receiver) VALUES
+INSERT INTO Feedback (item_id, rating, comment, sender, receiver) VALUES
 -- Red Bar Stool
-(1, 'Karen sold me a wobbly chair, I am furious.', 'John', 'Karen'),
-(10, 'The small gentleman bought my crooked bar stool. What a good lad.', 'Karen', 'John'),
+(1, 1, 'Karen sold me a wobbly chair, I am furious.', 'John', 'Karen'),
+(1, 10, 'The small gentleman bought my crooked bar stool. What a good lad.', 'Karen', 'John'),
 -- Tuba
-(8, 'I thank Alfie for his generous offer. Dwight said there is no way that this tuba is from the titanic, but I do not belive him.', 'Michael', 'Alfie'),
-(9, 'It was a pleasure dealing with Michael. The bloke paid a fair amount for some gold plated sheets of metal.', 'Alfie', 'Michael');
+(2, 8, 'I thank Alfie for his generous offer. Dwight said there is no way that this tuba is from the titanic, but I do not belive him.', 'Michael', 'Alfie'),
+(2, 9, 'It was a pleasure dealing with Michael. The bloke paid a fair amount for some gold plated sheets of metal.', 'Alfie', 'Michael');
 
 INSERT INTO Payment VALUES
 -- Red Bar Stool

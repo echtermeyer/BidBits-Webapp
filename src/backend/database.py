@@ -64,7 +64,6 @@ class Database:
                 )
                 # Document Payment for all auctions that ran out
                 for auction in self.__fetch_data_from_cursor():
-                    print(auction)
                     self.__cur.execute(
                     f"""INSERT INTO payment VALUES ({auction["amount"]}, '{auction["date"]}', '{auction["type"]}', '{auction["user_username"]}', {auction["item_id"]})"""
                     )
@@ -90,31 +89,6 @@ class Database:
             }
             for entry in self.__cur.fetchall()
         ]
-
-    # @__connection_manager
-    # def database_dump(self):
-        # Check if tables already exist
-        self.__cur.execute(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
-        table_names = self.__cur.fetchall()
-
-        if table_names.__len__() != 0:
-            # Delete current tables and domains
-            for table in table_names:
-                self.__cur.execute(f'DROP TABLE "{table[0]}" CASCADE;')
-            self.__cur.execute("DROP DOMAIN IF EXISTS EMAIL")
-            self.__cur.execute("DROP DOMAIN IF EXISTS PAYMENT_TYPE")
-
-        # Creating tables & domains and fill them with data
-        with open("./ddl.sql", "r") as sql_file:
-            sql = sql_file.read()
-            print(sql)
-            self.__cur.execute(sql)
-
-        self.__cur.execute(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
-        print(
-            f"\n == Successfully Created Tables == \n{[x[0] for x in self.__cur.fetchall()]}\n")
 
     # ---- Functions that correspond to button clicks
     @__connection_manager
@@ -154,19 +128,16 @@ class Database:
 
     @__connection_manager
     def place_bid(self, amount, item_id):
-        print(0)
+        print("place bid ", amount, item_id)
         self.__cur.execute(
             f"SELECT highest_bid, highest_bidder, seller FROM items_status WHERE item_id = {item_id}"
         )
         data = self.__fetch_data_from_cursor()
-        print(data)
         if data[0]["seller"] == self.__current_user:
             return (False, "You can't buy your own stuff")
         if data[0]["highest_bidder"] == self.__current_user:
             return (False, "You can't outbid yourself")
-        print(2)
         if data[0]["highest_bid"] > int(amount):
-            print(22)
             return (False, "Your bid must exceed the highest bid")
 
         # Place Bid
@@ -190,7 +161,7 @@ class Database:
         )
         receiver = self.__fetch_data_from_cursor()[0]["receiver"]
         self.__cur.execute(
-            f"INSERT INTO feedback (rating, comment, sender, receiver) VALUES ({rating}, '{comment}', '{self.__current_user}', '{receiver}')"
+            f"INSERT INTO feedback (item_id, rating, comment, sender, receiver) VALUES ({item_id}, {rating}, '{comment}', '{self.__current_user}', '{receiver}')"
         )
 
     @__connection_manager
@@ -206,16 +177,13 @@ class Database:
 
     @__connection_manager
     def update_userdata(self, email, first_name, last_name, address, phone):
-        print(email, first_name, last_name, address, phone)
         all_inputs = {"email": email, "firstname": first_name,
                       "lastname": last_name, "address": address, "phone": phone}
         filled_inputs = ", ".join(
             [f"{key} = '{value}'" for key, value in all_inputs.items() if value is not None])
-        print(filled_inputs)
         self.__cur.execute(
             f"UPDATE \"user\" SET {filled_inputs} WHERE username = '{self.__current_user}';"
         )
-        print(self.__current_user, email, first_name)
 
     @__connection_manager
     def delete_userdata(self):
@@ -275,12 +243,22 @@ class Database:
     @__connection_manager
     def get_my_auctions(self):
         self.__cur.execute(f"""
-		SELECT item_id, title, description, image_path, highest_bid AS amount, 
+		SELECT DISTINCT
+            items_status.item_id, 
+            title, 
+            description, 
+            image_path, 
+            highest_bid AS amount, 
 			CASE 
 				WHEN highest_bidder = '{self.__current_user}' THEN 'buyer'
 				WHEN seller = '{self.__current_user}' THEN 'seller'
-			END AS role
+			END AS role,
+            CASE 
+				WHEN feedback.rating IS NULL THEN 0
+				ELSE 1
+			END AS has_feedback
 		FROM items_status 
+        LEFT JOIN feedback ON items_status.item_id = feedback.item_id
 		WHERE time_left <= 0 AND (highest_bidder = '{self.__current_user}' OR seller = '{self.__current_user}');
         """)
 
