@@ -8,7 +8,7 @@ The fields 'item\_id' and 'amount' where indexed in order to significantly impro
 	CREATE INDEX index_bid_amount ON Bid (amount);
 \end{lstlisting}
 
-This increases efficiency considerably since those columns used to create the database view 'items\_status', which in turn is accessed in 5 separate queries, including those that are the used most frequently. In total our web application uses 22 separate queries which were implemented using psycopg2, 7 of which will be explained in this chapter.
+This increases efficiency considerably since those columns used to create the database view 'items\_status', which in turn is accessed in 5 separate queries, including those that are the used most frequently. The indexing significantly speeds up data retrieval from these tables which results in faster response times of the website as a whole. In total our web application uses 22 separate queries which were implemented using psycopg2, 7 of which will be explained in this chapter.
 
 \begin{lstlisting}[style=sqlStyle]
 SELECT 
