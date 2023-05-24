@@ -8,11 +8,9 @@ Welcome to the **bidbits** repository! This is where we develop and maintain our
 
 Start your application in a breeze with our simplified Docker commands. This ensures a uniform setup across different platforms and systems:
 
-1. To build the application, run: `docker-compose build`
+1. To build and start the application, run: `docker-compose up --build`
 
-2. To start the application, run: `docker-compose up`
-
-3. To clean everything including volumes: `docker-compose down -v`
+2. To clean everything including volumes: `docker-compose down -v`
 
 ---
 

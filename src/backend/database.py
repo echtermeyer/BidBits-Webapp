@@ -100,13 +100,13 @@ class Database:
         # Register User
         self.__cur.execute(
             f"INSERT INTO \"user\" (username, email, password, firstName, lastName, address, phone) VALUES\
-            ('{username}', '{email}', '{password}', '{first_name}', '{last_name}', '{address}', '{phone}')")
+            ('{username.strip()}', '{email}', '{password}', '{first_name}', '{last_name}', '{address}', '{phone}')")
         self.__current_user = username
 
     @__connection_manager
     def login(self, username, password):
         self.__cur.execute(
-            f"SELECT * FROM \"user\" WHERE username = '{username}' AND password = '{password}'")
+            f"SELECT * FROM \"user\" WHERE username = '{username.strip()}' AND password = '{password}'")
         if self.__cur.fetchall():
             self.__current_user = username
         else:
