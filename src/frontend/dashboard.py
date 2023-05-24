@@ -5,6 +5,13 @@ from dash import html
 
 def dashboard_layout(fn_get_all_items, fn_get_watchlist_items, fn_get_categories):
     return html.Div(style={"height": "100vh", "background": "linear-gradient(to right, yellow, orange)", "overflow": "auto"}, children=[
+        html.Div([
+            dcc.Link(
+                "Logout", href='/', style={"marginLeft": "2rem", "color": "black"}
+            )
+        ], style={"position": "absolute", "display": "flex", "padding-top": "1rem", "align-items": "top", "height": "100%"}),
+
+        
         html.H1("Dashboard", style={"fontFamily": "Roboto", "textAlign": "center", "fontSize": "3rem", "fontWeight": "bold", "marginTop": "3rem", "marginBottom": "1rem", "color": "black"}),
         
         html.Div([
