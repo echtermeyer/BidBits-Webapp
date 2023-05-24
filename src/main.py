@@ -145,21 +145,20 @@ def dashboard_switch_tabs(n1, n2, n3, n4, clicks1, clicks2, clicks3, clicks4):
     active_style = {**base_style, "text-decoration": "underline"}
 
     if not ctx.triggered:
-        return generate_items(db.get_active_items()), html.Div(), {"display": "block"}, {"display": "none"}, active_style, base_style, base_style, base_style
+        return generate_items(db.get_active_items(), "All Listings"), html.Div(), {"display": "block"}, {"display": "none"}, active_style, base_style, base_style, base_style
     else:
         button_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
     if button_id == "all-bids" and (clicks1 is None or clicks1 >= clicks2):
-        return generate_items(db.get_active_items()), html.Div(), {"display": "block"}, {"display": "none"}, active_style, base_style, base_style, base_style
+        return generate_items(db.get_active_items(), "All Listings"), html.Div(), {"display": "block"}, {"display": "none"}, active_style, base_style, base_style, base_style
     elif button_id == "watchlist" and (clicks2 is None or clicks2 > clicks1):
-        return html.Div(), generate_items(db.get_watchlist_items()), {"display": "none"}, {"display": "block"}, base_style, active_style, base_style, base_style
+        return html.Div(), generate_items(db.get_watchlist_items(), "My Watchlist"), {"display": "none"}, {"display": "block"}, base_style, active_style, base_style, base_style
     elif button_id == "user":
         return html.Div(), html.Div(), {"display": "none"}, {"display": "none"}, base_style, base_style, active_style, base_style
     elif button_id == "create-item":
         return html.Div(), html.Div(), {"display": "none"}, {"display": "none"}, base_style, base_style, base_style, active_style
     else:
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
-
 
 
 @app.callback(

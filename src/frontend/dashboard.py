@@ -15,14 +15,17 @@ def dashboard_layout(fn_get_all_items, fn_get_watchlist_items):
 
         html.Div(style={"height": "70vh", "overflow": "auto", "marginTop": "2rem"},
                  children=[
-                     html.Div(id="all-bids-content", children=generate_items(fn_get_all_items())),
-                     html.Div(id="watchlist-content", children=generate_items(fn_get_watchlist_items()), style={'display': 'none'})
+                     html.Div(id="all-bids-content", children=generate_items(fn_get_all_items(), "All Listings")),
+                     html.Div(id="watchlist-content", children=generate_items(fn_get_watchlist_items(), "My Watchlist"), style={'display': 'none'})
                  ]),
     ])
 
 
-def generate_items(items):
-    elements = []
+def generate_items(items, title):
+    elements = [
+        html.H2(title, style={"fontFamily": "Roboto", "textAlign": "center"}),
+    ]
+
     for i, item in enumerate(items):
         if item["is_watchlist"]:
             watchlist_text = "Remove from Watchlist"
