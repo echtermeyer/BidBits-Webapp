@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 
 
 def home_layout():
-    return html.Div(style={"height": "100vh", "background": "linear-gradient(to right, yellow, orange)", "overflow": "hidden"}, children=[
+    return html.Div(style={"height": "100vh", "background": "linear-gradient(to right, yellow, orange)", "overflow": "auto"}, children=[
         html.H1("BidBits", style={"fontFamily": "Roboto", "textAlign": "center", "fontSize": "3rem", "fontWeight": "bold", "marginTop": "3rem"}),
 
         dbc.Row([

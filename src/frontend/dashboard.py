@@ -52,9 +52,9 @@ def generate_items(items, title):
                         className="mt-3",
                     ),
                     html.Div("You are the highest bidder", id={'type': 'bidder-text', 'index': i}, hidden=True, style={"color": "green", "marginTop": "1rem"}),
+                    html.Div("Error. Try again later", id={'type': 'bidder-text-error', 'index': i}, hidden=True, style={"color": "red", "marginTop": "1rem"}),
                     dbc.Button(watchlist_text, id={'type': 'wishlist-button', 'index': i}, n_clicks=0, color="secondary", style={"marginTop": "2rem"}),
-                    html.Div(style={"flexGrow": "1"}),  # Spacer
-                    # Hidden Div to hold the item_id
+                    html.Div(style={"flexGrow": "1"}),  
                     html.Div(item['item_id'], id={'type': 'item_id', 'index': i}, style={'display': 'none'})
                 ], className="d-flex flex-column"), width=6)
             ])

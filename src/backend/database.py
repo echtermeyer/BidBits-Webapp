@@ -129,6 +129,9 @@ class Database:
     @__connection_manager
     def place_bid(self, amount, item_id):
         print("place bid ", amount, item_id)
+        if not amount:
+            return (False, "Your bid must exceed the highest bid")
+
         self.__cur.execute(
             f"SELECT highest_bid, highest_bidder, seller FROM items_status WHERE item_id = {item_id}"
         )

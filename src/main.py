@@ -182,24 +182,24 @@ def update_watchlist(n_clicks, current_state, item_id):
 
 
 @app.callback(
-    [Output({'type': 'bid-button', 'index': MATCH}, "disabled"),
-     Output({'type': 'bidder-text', 'index': MATCH}, "hidden")],
+    [Output({'type': 'bidder-text', 'index': MATCH}, "hidden"),
+     Output({'type': 'bidder-text-error', 'index': MATCH}, "hidden"),
+     Output({'type': 'bidder-text-error', 'index': MATCH}, "children")],
     [Input({'type': 'bid-button', 'index': MATCH}, "n_clicks")],
     [State({'type': 'title-text', 'index': MATCH}, 'children'),
-     # get item_id from hidden Div
      State({'type': 'item_id', 'index': MATCH}, 'children'),
-     State({'type': 'bid-input', 'index': MATCH}, 'value')],  # get bid amount from input field
+     State({'type': 'bid-input', 'index': MATCH}, 'value')],
     prevent_initial_call=True,
 )
 def place_bid(n_clicks, title, item_id, bid_amount):
-    if n_clicks is None:
+    if n_clicks == 0:
         raise dash.exceptions.PreventUpdate()
 
     worked, message = db.place_bid(bid_amount, item_id)
     if worked:
-        return True, False
+        return False, True, ""
     else:
-        raise dash.exceptions.PreventUpdate()
+        return True, False, message
     
 
 @app.callback(
