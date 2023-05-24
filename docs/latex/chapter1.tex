@@ -1,7 +1,7 @@
 % !TEX root =  master.tex
 \chapter{Database specification}
 
-In the subsequent section, the specifics of the database will be explained. Figure \ref{fig:erd} showcases the Entity-Relationship Diagram (ERD) for the database schema which visually represents the structure of the implemented database. In the following, detailed definitions for used tables, relationships, views and stored procedures will be explained too.
+In the subsequent section, the specifics of the database will be explained. Figure \ref{fig:erd-chen} showcases the Entity-Relationship Diagram (ERD) for the database schema which visually represents the structure of the implemented database. In the following, detailed definitions for used tables, relationships, views and stored procedures will be explained too.
 
 \begin{figure}[htbp]
 	\centering
@@ -14,6 +14,7 @@ In the subsequent section, the specifics of the database will be explained. Figu
 
 The user table is designed to store all details about the users of the auction system. This includes columns such as 'username', which serves as the primary key and a unique identifier for each user, 'email', the user's unique email address, 'password', the user's hashed password for enhanced security, 'firstName' and 'lastName', which are the first and last name of the user respectively, 'name', a composite of the first and last names, 'address', the user's physical address, and 'phone', the unique phone number of the user. All attributes must have values to create a new user entry.
 
+\vspace{0.2cm}
 \begin{lstlisting}[style=sqlStyle]
 	CREATE TABLE "user" (
 		username VARCHAR(255) PRIMARY KEY,
@@ -26,9 +27,12 @@ The user table is designed to store all details about the users of the auction s
 		phone VARCHAR(20) NOT NULL UNIQUE
 	);
 \end{lstlisting}
+\vspace{0.2cm}
 
 The item table is responsible for tracking all items listed for auction. It comprises columns such as 'id', a unique identifier for each item and the primary key for this table, 'name', the item's name, 'description', a detailed description of the item, 'startingPrice', the initial price for the auction of this item, 'startTime' and 'endTime', the timestamps for the beginning and end of the auction, 'imageUrl', the URL for an image of the item, 'user\_username', the username of the user who listed the item, a foreign key referencing the user table, and 'category\_id', the id of the item's category, a foreign key referencing the categorisation table.
+\clearpage
 
+\vspace{0.2cm}
 \begin{lstlisting}[style=sqlStyle]
 	CREATE TABLE Item (
 		id INTEGER DEFAULT nextval('item_sequence') PRIMARY KEY,
@@ -43,9 +47,11 @@ The item table is responsible for tracking all items listed for auction. It comp
 		category_id INTEGER REFERENCES Categorisation(id)
 	);
 \end{lstlisting}
+\vspace{0.2cm}
 
 The categorisation table categorizes the items being auctioned. It consists of three columns - 'id', 'category', and 'subcategory'. 'id' is a unique identifier for each category or subcategory pairing and serves as the primary key for this table. 'category' and 'subcategory' are text-based columns that describe the item category and the corresponding subcategory.
 
+\vspace{0.2cm}
 \begin{lstlisting}[style=sqlStyle]
 	CREATE TABLE Categorisation (
 		id SERIAL PRIMARY KEY,
@@ -53,9 +59,12 @@ The categorisation table categorizes the items being auctioned. It consists of t
 		subcategory VARCHAR(50) NOT NULL
 	);
 \end{lstlisting}
+\vspace{0.2cm}
 
 The bid table contains information regarding all bids placed on the items. It includes 'id', a unique identifier for each bid and the primary key for this table, 'amount', the bid's amount, 'bidTime', the timestamp when the bid was placed, 'user\_username', the username of the user who placed the bid, a foreign key referencing the user table, and 'item\_id', the id of the item being bid on, a foreign key referencing the item table.
+\clearpage
 
+\vspace{0.2cm}
 \begin{lstlisting}[style=sqlStyle]
 	CREATE TABLE Bid (
 		id SERIAL PRIMARY KEY,
@@ -66,9 +75,11 @@ The bid table contains information regarding all bids placed on the items. It in
 		item_id INTEGER REFERENCES Item(id)
 	);
 \end{lstlisting}
+\vspace{0.2cm}
 
 The watchlist table allows users to track items they are interested in. It includes 'user\_username', the username of the user interested in an item, a foreign key referencing the user table, and 'item\_id', the id of the item the user is interested in, a foreign key referencing the item table. The combination of 'user\_username' and 'item\_id' is unique, preventing duplicate entries in the watchlist.
 
+\vspace{0.2cm}
 \begin{lstlisting}[style=sqlStyle]
 	CREATE TABLE Watchlist (
 		user_username VARCHAR(50) REFERENCES "user"(username)
@@ -77,9 +88,12 @@ The watchlist table allows users to track items they are interested in. It inclu
 	CONSTRAINT unique_watchlist_entry UNIQUE (user_username, item_id)
 	);
 \end{lstlisting}
+\vspace{0.2cm}
 
 The feedback table facilitates users in leaving feedback about their transactions. It comprises 'feedbackID', a unique identifier for each feedback and the primary key for this table, 'item-id', the id of the item which was sold and to which the feedback is refering, 'rating', the rating given by the sender to the receiver on a scale from 0 to 10, 'comment', a text field for additional comments, 'sender' and 'receiver', the usernames of the user giving and receiving the feedback, both foreign keys referencing the user table.
+\clearpage
 
+\vspace{0.2cm}
 \begin{lstlisting}[style=sqlStyle]
 	CREATE TABLE Feedback (
 		feedbackID SERIAL PRIMARY KEY,
@@ -92,9 +106,11 @@ The feedback table facilitates users in leaving feedback about their transaction
 	ON DELETE SET NULL
 	);
 \end{lstlisting}
+\vspace{0.2cm}
 
 The payment table records all payments made for the items. It includes 'amount', the amount paid, 'date', the timestamp when the payment was made, 'type', the method of payment, 'user\_username', the username of the user making the payment, a foreign key referencing the user table, and 'item\_id', the id of the item for which the payment was made, a foreign key referencing the item table.
 
+\vspace{0.2cm}
 \begin{lstlisting}[style=sqlStyle]
 	CREATE TABLE Payment (
 		amount NUMERIC NOT NULL,
@@ -132,6 +148,8 @@ The database also consists of two views, item\_status and user\_statistics.
 The items\_status view is created to show the current status of each item in the auction. It contains various fields that provide important information about the item, its current highest bid, and the related users (highest bidder and seller). The purpose of this view is to aggregate relevant data from multiple tables and present it in a more readable and understandable format. It can be used to display the current state of items in a user-friendly way on an application or website.
 
 The view is created by joining the item table with a subquery that calculates the highest bid for each item. The result is then joined with the bid table to retrieve the highest bidder's username. The selected fields in this view include the item's name, id, description, image URL, remaining time until the auction ends, the highest bid, the highest bidder's username, and the seller's username.
+
+\vspace{0.2cm}
 \begin{lstlisting}[style=sqlStyle]
 	CREATE VIEW items_status AS
 	SELECT 
@@ -150,12 +168,14 @@ The view is created by joining the item table with a subquery that calculates th
 	ON bid.item_id = max_bids.item_id
 	AND bid.amount = max_bids.highest_bid;
 \end{lstlisting}
+\vspace{0.2cm}
 
 The user\_statistics materialized view in the database provides an aggregated summary of user activities on the auction platform. Being a materialized view, it stores the result of a complex and potentially time-consuming query, which can be refreshed as required, leading to faster data retrieval.
 
 Each row in this view represents a unique user on the platform. The view contains a variety of fields calculated from different tables to give a comprehensive overview of each user's auction activities. The participated\_auctions field shows the total number of unique auctions where the user has placed a bid, as determined from the bid table. Another field, won\_auctions, displays the number of auctions that the user has won. It's calculated from the bid table, where the user's bid was the highest and the auction time had ended. The average\_rating field indicates the mean feedback rating received by the user. It's derived from the feedback table by averaging all the ratings received by a user.
 To understand the financial aspect, two more fields are included: total\_expenses and total\_income. total\_expenses shows the sum of all the payments made by a user for won auctions, calculated from the payment table. On the other hand, total\_income calculates the total amount received by a user for the items they have sold. It's calculated by joining the payment and item tables and summing up the amounts where the user is the seller.
 
+\vspace{0.2cm}
 \begin{lstlisting}[style=sqlStyle]
 	CREATE MATERIALIZED VIEW user_statistics AS
 	SELECT 
@@ -196,7 +216,6 @@ To understand the financial aspect, two more fields are included: total\_expense
 	) AS total_income ON u.username = total_income.seller;
 \end{lstlisting}
 
-
 \section{Stored Procedure}
 The purpose of the implemented stored procedure is to add a random item to the watchlist of a user when the user account is created. The item must be currently on auction, meaning its end time must be in the future.
 
@@ -204,6 +223,7 @@ A variable random\_item\_id of type integer is declared to store the id of a ran
 
 This stored procedure is run by a trigger named user\_created\_trigger. A trigger is a special type of stored procedure that runs automatically when an event associated with a table occurs such as insert, update, or delete. In this case, the trigger is configured to run the add\_random\_item\_to\_watchlist() stored procedure each time a new row is inserted into the user table. This is specified by the AFTER INSERT ON "user" part of the trigger creation statement.
 
+\vspace{0.2cm}
 \begin{lstlisting}[style=sqlStyle]
 	CREATE OR REPLACE FUNCTION add_random_item_to_watchlist()
 	RETURNS TRIGGER AS $$

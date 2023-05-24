@@ -23,7 +23,18 @@ Access your application and Adminer using the following ports:
 | 8051 | Dash Application | [http://localhost:8051/](http://localhost:8051/) |
 | 8080 | Adminer          | [http://localhost:8080/](http://localhost:8080/) |
 
-#### Adminer Credentials
+### User Credentials
+
+To use the application, please use one of the following users or create a new user:
+
+| Username | Password                  |
+| -------- | ------------------------- |
+| Karen    | godblessamerica           |
+| Alfie    | nevergivepowertothebigman |
+| John     | thegameisafoot            |
+| Michael  | threadlevelmidnight       |
+
+### Adminer Credentials
 
 To login to Adminer, please use the following credentials:
 
@@ -45,5 +56,6 @@ Contact us:
 
 - **David Schäfer**
 - **Eric Echtermeyer**
+- **An-Phi Dang**
 
 We are here to help and guide you through this process. Happy bidding with **bidbits**!

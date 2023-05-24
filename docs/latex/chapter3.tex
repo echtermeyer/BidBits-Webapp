@@ -57,6 +57,7 @@ This query retrieves the completed auctions in which the current user participat
 UPDATE \"user\" SET {filled_inputs} WHERE username = '{self.__current_user}';
 \end{lstlisting}
 This query updates the user's personal data in the user table. It takes the email, first name, last name, address, and phone as input values and updates the corresponding columns for the current user.
+\clearpage
 
 \begin{lstlisting}[style=sqlStyle]
 DELETE FROM watchlist WHERE user_username = '{self.__current_user}' AND item_id = '{item_id}'
