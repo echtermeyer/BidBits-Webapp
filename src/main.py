@@ -14,7 +14,6 @@ from frontend.home import home_layout
 from frontend.serve import serve_layout
 from frontend.dashboard import dashboard_layout
 from frontend.user import user_layout
-from frontend.create import create_bid_layout
 
 from frontend.dashboard import generate_items, create_listing
 from frontend.user import personal_data_layout, won_auctions_layout, feedback_layout, payments_layout
@@ -46,10 +45,6 @@ def navigation(pathname):
             db.get_payments,
             db.get_my_auctions,
             db.get_user_stats()[0]
-        )
-    elif pathname == '/create':
-        return create_bid_layout(
-            db.get_categories
         )
     else:
         return '404'
@@ -318,7 +313,8 @@ def delete_user(n_clicks):
 
 @app.callback(
     [Output({"type": "feedback-input", "index": MATCH}, "value"),
-     Output({"type": "feedback-success", "index": MATCH}, "children")],
+     Output({"type": "feedback-success", "index": MATCH}, "children"),
+     Output({"type": "submit-button", "index": MATCH}, "disabled")],  # Add this line
     Input({"type": "submit-button", "index": MATCH}, "n_clicks"),
     [State({"type": "feedback-input", "index": MATCH}, "value"),
      State({"type": "rating-slider", "index": MATCH}, "value"),
@@ -331,9 +327,10 @@ def give_feedback(n_clicks, feedback, rating, item_id):
     item_id = item_id.split('#')[1]
     db.give_feedback(item_id, rating, feedback)
         
-    return "", html.Span("Feedback sent!", style={"color": "green"})
+    return "", html.Span("Feedback sent!", style={"color": "green"}), True  # Return True to disable the button
+
 
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, host='0.0.0.0', port=8051)
+    app.run_server(debug=False, host='0.0.0.0', port=8051)

@@ -206,10 +206,10 @@ INSERT INTO Watchlist VALUES
 INSERT INTO Feedback (item_id, rating, comment, sender, receiver) VALUES
 -- Red Bar Stool
 (1, 1, 'Karen sold me a wobbly chair, I am furious.', 'John', 'Karen'),
-(1, 10, 'The small gentleman bought my crooked bar stool. What a good lad.', 'Karen', 'John'),
+(1, 5, 'The small gentleman bought my crooked bar stool. What a good lad.', 'Karen', 'John'),
 -- Tuba
-(2, 8, 'I thank Alfie for his generous offer. Dwight said there is no way that this tuba is from the titanic, but I do not belive him.', 'Michael', 'Alfie'),
-(2, 9, 'It was a pleasure dealing with Michael. The bloke paid a fair amount for some gold plated sheets of metal.', 'Alfie', 'Michael');
+(2,4, 'I thank Alfie for his generous offer. Dwight said there is no way that this tuba is from the titanic, but I do not belive him.', 'Michael', 'Alfie'),
+(2, 4, 'It was a pleasure dealing with Michael. The bloke paid a fair amount for some gold plated sheets of metal.', 'Alfie', 'Michael');
 
 INSERT INTO Payment VALUES
 -- Red Bar Stool

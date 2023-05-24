@@ -171,7 +171,7 @@ def personal_data_layout(fn_get_user_information):
 
 def won_auctions_layout(get_won_auctions_information, stats):
     elements = [
-        html.H2("Finished Auctions", style={
+        html.H2("Bought and Sold Items", style={
                 "fontFamily": "Roboto", "textAlign": "center"}),
         html.H5(f"Won Auctions: {stats['won_auctions']}  |  Participated Auctions: {stats['participated_auctions']}",
                 style={"fontFamily": "Roboto", "textAlign": "center"})
@@ -179,6 +179,7 @@ def won_auctions_layout(get_won_auctions_information, stats):
 
     for i, auction in enumerate(get_won_auctions_information()):
         print(auction)
+
         item = dbc.Card([
         dbc.Row([
             dbc.Col(dbc.CardImg(
@@ -194,26 +195,26 @@ def won_auctions_layout(get_won_auctions_information, stats):
                 html.H6(
                     f"Item Code: #{auction['item_id']}", className="card-text", id={'type': 'item-id', 'index': i}),
                 html.H6(
-                    f"Rate your experience:", className="card-text"
-                ),
+                    f"Rate your experience:", className="card-text", 
+                ) if auction["has_feedback"] == 0 else None,
                 dcc.Slider(
                     id={'type': 'rating-slider', 'index': i},
                     min=1,
                     max=5,
                     marks={i: str(i) for i in range(1, 6)},
                     value=3,
-                ),
+                ) if auction["has_feedback"] == 0 else None,
                 dbc.Input(
                     id={"type": "feedback-input", "index": i}, 
                     placeholder="Write your feedback here...",
                     style={"height": "4rem", "textAlign": "top"},
-                ),
+                ) if auction["has_feedback"] == 0 else None,
                 dbc.Button(
                     "Submit feedback",
                     id={"type": "submit-button", "index": i},
                     color="primary",
                     style={"fontFamily": "Roboto", "width": "100%", "marginTop": "1rem"}
-                ),
+                ) if auction["has_feedback"] == 0 else None,
                 html.Div(id={"type": "feedback-success", "index": i})
             ], className="d-flex flex-column"), width=6)
         ])], style={"width": "50%", "margin": "1rem auto"})
@@ -227,7 +228,7 @@ def won_auctions_layout(get_won_auctions_information, stats):
 
 def feedback_layout(fn_get_feedback_information, stats):
     elements = [
-        html.H2("Buyer Feedback", style={
+        html.H2("Received Feedback", style={
                 "fontFamily": "Roboto", "textAlign": "center"}),
         html.H5(f"User Rating: {stats['average_rating']:.1f}/5.0 stars",
                 style={"fontFamily": "Roboto", "textAlign": "center"})
