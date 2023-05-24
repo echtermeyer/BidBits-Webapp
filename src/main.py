@@ -16,7 +16,7 @@ from frontend.dashboard import dashboard_layout
 from frontend.user import user_layout
 from frontend.create import create_bid_layout
 
-from frontend.dashboard import generate_items
+from frontend.dashboard import generate_items, create_listing
 from frontend.user import personal_data_layout, won_auctions_layout, feedback_layout, payments_layout
 
 from backend.database import Database
@@ -38,7 +38,7 @@ def navigation(pathname):
     if pathname == '/' or pathname is None:
         return home_layout()
     elif pathname == '/dashboard':
-        return dashboard_layout(db.get_active_items, db.get_watchlist_items)
+        return dashboard_layout(db.get_active_items, db.get_watchlist_items, db.get_categories)
     elif pathname == '/user':
         return user_layout(
             db.get_personal_data,
@@ -116,8 +116,10 @@ def login_register(login_clicks, register_clicks, close_clicks, login_username, 
     [
         Output("all-bids-content", "children"),
         Output("watchlist-content", "children"),
+        Output("create-listing-content", "children"),
         Output("all-bids-content", "style"),
         Output("watchlist-content", "style"),
+        Output("create-listing-content", "style"),
         Output("all-bids", "style"),
         Output("watchlist", "style"),
         Output("user", "style"),
@@ -145,20 +147,20 @@ def dashboard_switch_tabs(n1, n2, n3, n4, clicks1, clicks2, clicks3, clicks4):
     active_style = {**base_style, "text-decoration": "underline"}
 
     if not ctx.triggered:
-        return generate_items(db.get_active_items(), "All Listings"), html.Div(), {"display": "block"}, {"display": "none"}, active_style, base_style, base_style, base_style
+        return generate_items(db.get_active_items(), "All Listings"), html.Div(), html.Div(), {"display": "block"}, {"display": "none"}, {"display": "none"}, active_style, base_style, base_style, base_style
     else:
         button_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
     if button_id == "all-bids" and (clicks1 is None or clicks1 >= clicks2):
-        return generate_items(db.get_active_items(), "All Listings"), html.Div(), {"display": "block"}, {"display": "none"}, active_style, base_style, base_style, base_style
+        return generate_items(db.get_active_items(), "All Listings"), html.Div(), html.Div(), {"display": "block"}, {"display": "none"}, {"display": "none"}, active_style, base_style, base_style, base_style
     elif button_id == "watchlist" and (clicks2 is None or clicks2 > clicks1):
-        return html.Div(), generate_items(db.get_watchlist_items(), "My Watchlist"), {"display": "none"}, {"display": "block"}, base_style, active_style, base_style, base_style
+        return html.Div(), generate_items(db.get_watchlist_items(), "My Watchlist"), html.Div(), {"display": "none"}, {"display": "block"}, {"display": "none"}, base_style, active_style, base_style, base_style
     elif button_id == "user":
-        return html.Div(), html.Div(), {"display": "none"}, {"display": "none"}, base_style, base_style, active_style, base_style
+        return html.Div(), html.Div(), html.Div(), {"display": "none"}, {"display": "none"}, {"display": "none"}, base_style, base_style, active_style, base_style
     elif button_id == "create-item":
-        return html.Div(), html.Div(), {"display": "none"}, {"display": "none"}, base_style, base_style, base_style, active_style
+        return html.Div(), html.Div(), create_listing(db.get_categories, "Create Item for Auction"), {"display": "none"}, {"display": "none"}, {"display": "block"}, base_style, base_style, base_style, active_style
     else:
-        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
 
 @app.callback(
@@ -334,4 +336,4 @@ def give_feedback(n_clicks, feedback, rating, item_id):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, host='0.0.0.0', port=8051)
+    app.run_server(debug=False, host='0.0.0.0', port=8051)
