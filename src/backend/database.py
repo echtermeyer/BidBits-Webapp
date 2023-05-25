@@ -271,8 +271,13 @@ class Database:
     def get_feedback(self):
         self.__cur.execute(
             f"SELECT * FROM feedback WHERE receiver = '{self.__current_user}';")
+        dicts = self.__fetch_data_from_cursor()
+        for d in dicts:
+            d["sender"] = "deleted user" if d["sender"] is None else d["sender"]
+            d["receiver"] = "deleted user" if d["receiver"] is None else d["receiver"]
 
-        return self.__fetch_data_from_cursor()
+        return dicts
+         
 
     @__connection_manager
     def get_payments(self):
