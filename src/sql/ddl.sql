@@ -111,7 +111,7 @@ CREATE MATERIALIZED VIEW user_statistics AS
         u.username,
         COALESCE(participated_auctions.participated_auctions, 0) AS participated_auctions,
         COALESCE(won_auctions.won_auctions, 0) AS won_auctions,
-        COALESCE(CAST(average_feedback.average_rating AS INTEGER), 0) AS average_rating,
+        COALESCE(CAST(average_feedback.average_rating AS NUMERIC), 0) AS average_rating,
         COALESCE(total_expenses.total_expenses, 0) AS total_expenses,
         COALESCE(total_income.total_income, 0) AS total_income
     FROM "user" u

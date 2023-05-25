@@ -281,7 +281,7 @@ def payments_layout(fn_get_payment_information, stats):
                     html.P(
                         f"Payment Date: {payment['date']}", className="card-text"),
                     html.H6(
-                        f"Paid amount: ${payment['amount']:.2f}", className="card-text"),
+                        f"Transaction amount: ${payment['amount']:.2f}", className="card-text"),
                 ], className="d-flex flex-column"), width=6)
             ])
         ], style={"width": "50%", "margin": "1rem auto"})
