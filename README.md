@@ -8,9 +8,15 @@ Welcome to the **bidbits** repository! This is where we develop and maintain our
 
 Start your application in a breeze with our simplified Docker commands. This ensures a uniform setup across different platforms and systems:
 
-1. To build and start the application, run: `docker-compose up --build`
+1. Read the [preliminary specification](docs/Preliminary%20specification.pdf) to get a better understanding of the use case
 
-2. To clean everything including volumes: `docker-compose down -v`
+2. Read the [project documentation](docs/project_documentation_bidbits.pdf) to get in-depth insights of the application
+
+3. The application [demo recording](https://youtu.be/OK3nlcNUKLw) explains the application. Extract the file first
+
+4. To build and start the application, run: `docker-compose up --build`
+
+5. To clean everything including volumes: `docker-compose down -v`
 
 ---
 
